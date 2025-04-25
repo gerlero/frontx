@@ -1,0 +1,30 @@
+theme:
+    name: material
+
+site_name: Frontx
+site_description: Documentation for the Frontx package
+site_author: Gabriel S. Gerlero
+site_url: https://frontx.readthedocs.io/
+
+repo_url: https://github.com/gerlero/frontx
+repo_name: gerlero/frontx
+
+strict: true
+
+plugins:
+    - search
+    - mkdocstrings:
+        handlers:
+            python:
+                options:
+                    show_if_no_docstring: true
+                    show_root_heading: true
+                    show_signature_annotations: true
+                    show_symbol_type_toc: true
+
+
+nav:
+    - 'index.md'
+    - 'solve.md'
+    - 'inverse.md'
+    - 'models.md'

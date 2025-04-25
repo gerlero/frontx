@@ -1,0 +1,3 @@
+# Solving problems
+
+## ::: frontx.solve
