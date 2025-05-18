@@ -30,9 +30,9 @@ class _MoistureDiffusivityModel(eqx.Module):
 
 
 class LETd(_MoistureDiffusivityModel):
-    L: float  # type: ignore[misc]
-    E: float  # type: ignore[misc]
-    T: float  # type: ignore[misc]
+    L: float
+    E: float
+    T: float
     Dwt: float = 1
     theta_range: tuple[float, float] = (0, 1)
 
@@ -101,7 +101,7 @@ class _RichardsModel(_MoistureDiffusivityModel):
 
 
 class BrooksAndCorey(_RichardsModel):
-    n: float  # type: ignore[misc]
+    n: float
     l: float = 1  # noqa: E741
     Ks: float | None = None
     k: float | None = None
@@ -180,12 +180,12 @@ class VanGenuchten(_RichardsModel):
 
 
 class LETxs(_RichardsModel):
-    Lw: float  # type: ignore[misc]
-    Ew: float  # type: ignore[misc]
-    Tw: float  # type: ignore[misc]
-    Ls: float  # type: ignore[misc]
-    Es: float  # type: ignore[misc]
-    Ts: float  # type: ignore[misc]
+    Lw: float
+    Ew: float
+    Tw: float
+    Ls: float
+    Es: float
+    Ts: float
     Ks: float | None = None
     k: float | None = None
     g: float = 9.81

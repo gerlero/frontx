@@ -37,7 +37,7 @@ dependencies = [
 
 [dependency-groups]
 lint = ["ruff"]
-typing = ["mypy>=1,<2"]
+typing = ["ty"]
 test = [
     "fronts>=1,<2",
     "pytest>=8,<9",
