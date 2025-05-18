@@ -87,12 +87,13 @@ def boltzmannmethod(
             t = kwargs["t"]
             o = r / jnp.sqrt(t)
         else:
-            msg = f"{meth.__name__} takes (r, t) or (o,) as arguments"
+            meth_name = getattr(meth, "__name__", "method")
+            msg = f"{meth_name} takes (r, t) or (o,) as arguments"
             raise TypeError(msg)
 
         return meth(self, o)
 
-    return boltzmann_wrapper  # type: ignore[return-value]
+    return boltzmann_wrapper
 
 
 class AbstractSolution(ABC):

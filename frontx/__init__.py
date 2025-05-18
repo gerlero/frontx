@@ -7,7 +7,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import optimistix as optx
-from interpax import PchipInterpolator  # type: ignore[import-untyped]
+from interpax import PchipInterpolator
 
 from ._boltzmann import AbstractSolution, boltzmannmethod, ode
 
@@ -16,7 +16,7 @@ __version__ = "0.1.0"
 
 class Solution(eqx.Module, AbstractSolution):
     _sol: diffrax.Solution
-    D: Callable[  # type: ignore[assignment]
+    D: Callable[
         [float | jax.Array | np.ndarray[Any, Any]],
         float | jax.Array | np.ndarray[Any, Any],
     ]
@@ -26,34 +26,34 @@ class Solution(eqx.Module, AbstractSolution):
         self,
         o: float | jax.Array | np.ndarray[Any, Any],
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        return jax.vmap(self._sol.evaluate)(jnp.clip(o, 0, self.oi))[..., 0]  # type: ignore[no-any-return]
+        return jax.vmap(self._sol.evaluate)(jnp.clip(o, 0, self.oi))[..., 0]
 
     @boltzmannmethod
     def d_do(
         self,
         o: float | jax.Array | np.ndarray[Any, Any],
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        return jax.vmap(self._sol.evaluate)(jnp.clip(o, 0, self.oi))[..., 1]  # type: ignore[no-any-return]
+        return jax.vmap(self._sol.evaluate)(jnp.clip(o, 0, self.oi))[..., 1]
 
     @property
     def oi(self) -> float:
         assert self._sol.ts is not None
-        return self._sol.ts[-1]  # type: ignore[no-any-return]
+        return self._sol.ts[-1]
 
     @property
     def i(self) -> float:
         assert self._sol.ys is not None
-        return self._sol.ys[-1, 0]  # type: ignore[no-any-return]
+        return self._sol.ys[-1, 0]
 
     @property
     def b(self) -> float:
         assert self._sol.ys is not None
-        return self._sol.ys[0, 0]  # type: ignore[no-any-return]
+        return self._sol.ys[0, 0]
 
     @property
     def d_dob(self) -> float:
         assert self._sol.ys is not None
-        return self._sol.ys[0, 1]  # type: ignore[no-any-return]
+        return self._sol.ys[0, 1]
 
 
 @eqx.filter_jit
@@ -97,11 +97,13 @@ def solve(
             sol.ys[-1, 0] - i,
             direction * jnp.inf,
         )
-        return residual, sol  # type: ignore[return-value]
+        return residual, sol  # ty: ignore[invalid-return-type]
 
     sol: diffrax.Solution = optx.root_find(
         shoot,
-        solver=optx.Bisection(rtol=jnp.inf, atol=itol, expand_if_necessary=True),  # type: ignore[call-arg]
+        solver=optx.Bisection(
+            rtol=jnp.inf, atol=itol, expand_if_necessary=True
+        ),  # ty: ignore[missing-argument]
         y0=0,
         max_steps=maxiter,
         has_aux=True,
@@ -127,6 +129,9 @@ class InterpolatedSolution(eqx.Module, AbstractSolution):
         b: float | None = None,
         i: float | None = None,
     ) -> None:
+        o = jnp.asarray(o)
+        theta = jnp.asarray(theta)
+
         self._sol = PchipInterpolator(x=o, y=theta, check=False)
 
         if b is not None:
@@ -137,9 +142,9 @@ class InterpolatedSolution(eqx.Module, AbstractSolution):
             o = jnp.append(o, o[-1] + 1)
             theta = jnp.append(theta, i)
         else:
-            i = theta[-1]  # type: ignore[assignment]
+            i = theta[-1]  # ty: ignore[invalid-assignment]
 
-        self._oi: float = o[-1]  # type: ignore[assignment]
+        self._oi: float = o[-1]
 
         theta, indices = jnp.unique(theta, return_index=True)
         o = o[indices]
@@ -154,7 +159,7 @@ class InterpolatedSolution(eqx.Module, AbstractSolution):
         self,
         o: float | jax.Array | np.ndarray[Any, Any],
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        return self._sol(o)  # type: ignore[no-any-return]
+        return self._sol(o)
 
     def D(  # noqa: N802
         self,
@@ -170,7 +175,7 @@ class InterpolatedSolution(eqx.Module, AbstractSolution):
         self, o: float | jax.Array | np.ndarray[Any, Any] = 0
     ) -> float | jax.Array | np.ndarray[Any, Any]:
         Ithetado = self._sol.antiderivative()  # noqa: N806
-        return (Ithetado(self._oi) - Ithetado(o)) - self.i * (self._oi - o)  # type: ignore[no-any-return]
+        return (Ithetado(self._oi) - Ithetado(o)) - self.i * (self._oi - o)
 
     @property
     def oi(self) -> float:
