@@ -1,9 +1,10 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from collections.abc import Callable
 from functools import wraps
 from typing import Any, Protocol, TypeVar, overload
 
 import diffrax
+import equinox as eqx
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -96,11 +97,8 @@ def boltzmannmethod(
     return boltzmann_wrapper
 
 
-class AbstractSolution(ABC):
-    @property
-    @abstractmethod
-    def oi(self) -> float:
-        raise NotImplementedError
+class AbstractSolution(eqx.Module):
+    oi: eqx.AbstractClassVar[float]
 
     @property
     def b(self) -> float | jax.Array | np.ndarray[Any, Any]:
@@ -112,7 +110,7 @@ class AbstractSolution(ABC):
 
     @property
     def i(self) -> float | jax.Array | np.ndarray[Any, Any]:
-        return self(o=self.oi)
+        return self(self.oi)
 
     @abstractmethod
     @boltzmannmethod

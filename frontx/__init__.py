@@ -14,7 +14,7 @@ from ._boltzmann import AbstractSolution, boltzmannmethod, ode
 __version__ = "0.1.0"
 
 
-class Solution(eqx.Module, AbstractSolution):
+class Solution(AbstractSolution):
     _sol: diffrax.Solution
     D: Callable[
         [float | jax.Array | np.ndarray[Any, Any]],
@@ -113,7 +113,7 @@ def solve(
     return Solution(sol, D)
 
 
-class InterpolatedSolution(eqx.Module, AbstractSolution):
+class InterpolatedSolution(AbstractSolution):
     _sol: PchipInterpolator
     _do_dtheta: PchipInterpolator
     _Iodtheta: PchipInterpolator
