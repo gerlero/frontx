@@ -14,6 +14,8 @@ def vmap(
     ],
     /,
 ) -> Callable[[float | jax.Array | np.ndarray[Any, Any]], float | jax.Array]:
+    vfunc = jax.vmap(func)
+
     @wraps(func)
     def vmap_wrapper(
         x: float | jax.Array | np.ndarray[Any, Any],
@@ -22,6 +24,6 @@ def vmap(
         if jnp.ndim(x) == 0:
             return func(x)
 
-        return jax.vmap(func)(x)
+        return vfunc(x)
 
     return vmap_wrapper
