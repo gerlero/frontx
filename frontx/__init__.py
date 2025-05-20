@@ -114,11 +114,11 @@ def solve(
 
 
 class InterpolatedSolution(AbstractSolution):
+    oi: float
     _sol: PchipInterpolator
     _do_dtheta: PchipInterpolator
     _Iodtheta: PchipInterpolator
     _c: float
-    _oi: float
 
     def __init__(
         self,
@@ -144,7 +144,7 @@ class InterpolatedSolution(AbstractSolution):
         else:
             i = theta[-1]  # ty: ignore[invalid-assignment]
 
-        self._oi: float = o[-1]
+        self.oi: float = o[-1]
 
         theta, indices = jnp.unique(theta, return_index=True)
         o = o[indices]
@@ -175,8 +175,4 @@ class InterpolatedSolution(AbstractSolution):
         self, o: float | jax.Array | np.ndarray[Any, Any] = 0
     ) -> float | jax.Array | np.ndarray[Any, Any]:
         Ithetado = self._sol.antiderivative()  # noqa: N806
-        return (Ithetado(self._oi) - Ithetado(o)) - self.i * (self._oi - o)
-
-    @property
-    def oi(self) -> float:
-        return self._oi
+        return (Ithetado(self.oi) - Ithetado(o)) - self.i * (self.oi - o)
