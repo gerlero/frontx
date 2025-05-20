@@ -97,7 +97,13 @@ def boltzmannmethod(
     return boltzmann_wrapper
 
 
+class RESULTS(eqx.Enumeration):
+    successful = ""
+    max_steps_reached = "Maximum number of steps reached without convergence"
+
+
 class AbstractSolution(eqx.Module):
+    result: eqx.AbstractVar[RESULTS]
     oi: eqx.AbstractVar[float]
 
     @property

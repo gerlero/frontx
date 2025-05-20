@@ -9,7 +9,7 @@ import numpy as np
 import optimistix as optx
 from interpax import PchipInterpolator
 
-from ._boltzmann import AbstractSolution, boltzmannmethod, ode
+from ._boltzmann import RESULTS, AbstractSolution, boltzmannmethod, ode
 from ._util import vmap
 
 __version__ = "0.1.0"
@@ -17,6 +17,7 @@ __version__ = "0.1.0"
 
 class Solution(AbstractSolution):
     _sol: diffrax.Solution
+    result: RESULTS
     D: Callable[
         [float | jax.Array | np.ndarray[Any, Any]],
         float | jax.Array | np.ndarray[Any, Any],
@@ -58,7 +59,7 @@ class Solution(AbstractSolution):
 
 
 @eqx.filter_jit
-def solve(
+def solve(  # noqa: PLR0913
     D: Callable[  # noqa: N803
         [float | jax.Array | np.ndarray[Any, Any]],
         float | jax.Array | np.ndarray[Any, Any],
@@ -68,6 +69,7 @@ def solve(
     i: float,
     itol: float = 1e-3,
     maxiter: int = 100,
+    throw: bool = True,
 ) -> Solution:
     term = ode(D)
     direction = jnp.sign(i - b)
@@ -100,7 +102,7 @@ def solve(
         )
         return residual, sol  # ty: ignore[invalid-return-type]
 
-    sol: diffrax.Solution = optx.root_find(
+    root: optx.Solution = optx.root_find(
         shoot,
         solver=optx.Bisection(
             rtol=jnp.inf, atol=itol, expand_if_necessary=True
@@ -109,9 +111,18 @@ def solve(
         max_steps=maxiter,
         has_aux=True,
         options={"lower": 0, "upper": (i - b) / (2 * jnp.sqrt(D(b)))},
-    ).aux
+        throw=throw,
+    )
 
-    return Solution(sol, D)  # ty: ignore[missing-argument,invalid-argument-type]
+    return Solution(
+        root.aux,
+        RESULTS.where(
+            root.result == optx.RESULTS.successful,
+            RESULTS.successful,
+            RESULTS.max_steps_reached,
+        ),
+        D,  # ty: ignore[invalid-argument-type]
+    )  # ty: ignore[missing-argument]
 
 
 class InterpolatedSolution(AbstractSolution):
@@ -120,6 +131,7 @@ class InterpolatedSolution(AbstractSolution):
     _do_dtheta: PchipInterpolator
     _Iodtheta: PchipInterpolator
     _c: float
+    result: RESULTS
 
     def __init__(
         self,
@@ -154,6 +166,7 @@ class InterpolatedSolution(AbstractSolution):
         self._do_dtheta = inverse.derivative()
         self._Iodtheta = inverse.antiderivative()
         self._c = self._Iodtheta(i)
+        self.result = RESULTS.successful
 
     @boltzmannmethod
     def __call__(
