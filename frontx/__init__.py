@@ -10,6 +10,7 @@ import optimistix as optx
 from interpax import PchipInterpolator
 
 from ._boltzmann import AbstractSolution, boltzmannmethod, ode
+from ._util import vmap
 
 __version__ = "0.1.0"
 
@@ -26,14 +27,14 @@ class Solution(AbstractSolution):
         self,
         o: float | jax.Array | np.ndarray[Any, Any],
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        return jax.vmap(self._sol.evaluate)(jnp.clip(o, 0, self.oi))[..., 0]
+        return vmap(self._sol.evaluate)(jnp.clip(o, 0, self.oi))[..., 0]
 
     @boltzmannmethod
     def d_do(
         self,
         o: float | jax.Array | np.ndarray[Any, Any],
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        return jax.vmap(self._sol.evaluate)(jnp.clip(o, 0, self.oi))[..., 1]
+        return vmap(self._sol.evaluate)(jnp.clip(o, 0, self.oi))[..., 1]
 
     @property
     def oi(self) -> float:
