@@ -110,7 +110,7 @@ def solve(
         options={"lower": 0, "upper": (i - b) / (2 * jnp.sqrt(D(b)))},
     ).aux
 
-    return Solution(sol, D)
+    return Solution(sol, D)  # ty: ignore[missing-argument,invalid-argument-type]
 
 
 class InterpolatedSolution(AbstractSolution):

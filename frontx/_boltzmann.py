@@ -98,7 +98,7 @@ def boltzmannmethod(
 
 
 class AbstractSolution(eqx.Module):
-    oi: eqx.AbstractClassVar[float]
+    oi: eqx.AbstractVar[float]
 
     @property
     def b(self) -> float | jax.Array | np.ndarray[Any, Any]:
