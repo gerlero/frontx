@@ -1,10 +1,34 @@
 from collections.abc import Callable
 from functools import wraps
-from typing import Any
+from typing import Any, overload
 
 import jax
 import jax.numpy as jnp
 import numpy as np
+
+
+@overload
+def vmap(
+    func: Callable[
+        [float | jax.Array | np.ndarray[Any, Any]],
+        jax.Array | np.ndarray[Any, Any],
+    ],
+    /,
+) -> Callable[
+    [float | jax.Array | np.ndarray[Any, Any]], jax.Array | np.ndarray[Any, Any]
+]: ...
+
+
+@overload
+def vmap(
+    func: Callable[
+        [float | jax.Array | np.ndarray[Any, Any]],
+        float | jax.Array | np.ndarray[Any, Any],
+    ],
+    /,
+) -> Callable[
+    [float | jax.Array | np.ndarray[Any, Any]], float | jax.Array | np.ndarray[Any, Any]
+]: ...
 
 
 def vmap(
@@ -13,7 +37,9 @@ def vmap(
         float | jax.Array | np.ndarray[Any, Any],
     ],
     /,
-) -> Callable[[float | jax.Array | np.ndarray[Any, Any]], float | jax.Array]:
+) -> Callable[
+    [float | jax.Array | np.ndarray[Any, Any]], float | jax.Array | np.ndarray[Any, Any]
+]:
     vfunc = jax.vmap(func)
 
     @wraps(func)
