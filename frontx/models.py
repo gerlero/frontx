@@ -67,9 +67,9 @@ class _RichardsModel(_MoistureDiffusivityModel):
         theta: float | jax.Array | np.ndarray[Any, Any],
         /,
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        return self.K(theta) / self.C(theta)
+        return self._K(theta) / self._C(theta)
 
-    def C(  # noqa: N802
+    def _C(  # noqa: N802
         self,
         theta: float | jax.Array | np.ndarray[Any, Any],
         /,
@@ -92,7 +92,7 @@ class _RichardsModel(_MoistureDiffusivityModel):
     ) -> float | jax.Array | np.ndarray[Any, Any]:
         raise NotImplementedError
 
-    def K(  # noqa: N802
+    def _K(  # noqa: N802
         self,
         theta: float | jax.Array | np.ndarray[Any, Any],
         /,
