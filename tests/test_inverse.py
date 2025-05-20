@@ -13,6 +13,8 @@ def test_exact() -> None:
 
     sol = frontx.InterpolatedSolution(o, jnp.exp(-o))
 
+    assert sol(o) == pytest.approx(jnp.exp(-o))
+
     theta = jnp.linspace(1e-6, 1, 100)
 
     assert sol.D(theta) == pytest.approx(0.5 * (1 - jnp.log(theta)), abs=5e-2)
