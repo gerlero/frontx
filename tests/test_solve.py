@@ -1,12 +1,13 @@
 from typing import Any
 
+import equinox as eqx
 import fronts
 import fronts.D
 import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
-from frontx import solve
+from frontx import RESULTS, solve
 from frontx.models import BrooksAndCorey, LETd, LETxs, VanGenuchten
 
 jax.config.update("jax_enable_x64", True)  # type: ignore[no-untyped-call]  # noqa: FBT003
@@ -129,3 +130,13 @@ def test_fronts_papers(Ds: tuple[Any, Any, dict[str, Any]]) -> None:  # noqa: N8
     o = np.linspace(0, solf.oi, 100)
 
     assert sol(o) == pytest.approx(solf(o=o), abs=5e-2)
+
+
+def test_unsolvable() -> None:
+    with pytest.raises(eqx.EquinoxRuntimeError):
+        solve(D=lambda theta: theta, i=-1, b=1)
+
+    assert (
+        solve(D=lambda theta: theta, i=-1, b=1, throw=False).result
+        != RESULTS.successful
+    )
