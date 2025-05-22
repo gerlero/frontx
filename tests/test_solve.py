@@ -10,7 +10,7 @@ import pytest
 from frontx import RESULTS, solve
 from frontx.models import BrooksAndCorey, LETd, LETxs, VanGenuchten
 
-jax.config.update("jax_enable_x64", True)  # type: ignore[no-untyped-call]  # noqa: FBT003
+jax.config.update("jax_enable_x64", True)  # noqa: FBT003
 
 
 def test_exact() -> None:
