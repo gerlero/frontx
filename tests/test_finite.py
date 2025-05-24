@@ -50,3 +50,20 @@ def test_validity_let(
     sol = frontx.finite.solve(D, r[-1], t, b=b, i=jnp.repeat(i, r.size))
 
     assert sol(r, t) == pytest.approx(ref(r, t), abs=2e-2)
+
+
+def test_mass_conservation() -> None:
+    D = LETd(L=0.004569, E=12930, T=1.505, Dwt=4.660e-4, theta_range=(0.019852, 0.7))  # noqa: N806
+    b = 0.7 - 1e-7
+    i = 0.025
+
+    sol = frontx.solve(D, b=b, i=i)
+
+    r = jnp.linspace(0, 0.0025, 500)
+    t = jnp.linspace(0, 1_000, 500)
+
+    total = sol.sorptivity()
+    sol = frontx.finite.solve(D, r[-1], t[-1], i=sol(r, 1.0))
+
+    for t_ in t:
+        assert jnp.trapezoid(sol(r, t_) - i, r) == pytest.approx(total, abs=1e-4)
