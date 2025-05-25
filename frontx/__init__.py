@@ -15,9 +15,7 @@ from ._util import vmap
 __version__ = "0.1.0"
 
 
-class RESULTS(eqx.Enumeration):
-    successful = ""
-    max_steps_reached = "Maximum number of steps reached without convergence"
+RESULTS = diffrax.RESULTS
 
 
 class Solution(AbstractSolution):
