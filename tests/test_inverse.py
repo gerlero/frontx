@@ -35,7 +35,7 @@ def test_exact_solve() -> None:
     assert theta(o=o) == pytest.approx(jnp.exp(-o), abs=1e-2)
 
 
-def test_sorptivity() -> None:
+def test_interpolated_sorptivity() -> None:
     """
     Philip, J. R. (1960). General Method of Exact Solution of the
     Concentration-Dependent Diffusion Equation.
@@ -46,3 +46,13 @@ def test_sorptivity() -> None:
     sol = frontx.InterpolatedSolution(o, jnp.exp(-o))
 
     assert sol.sorptivity() == pytest.approx(1, abs=1e-4)
+
+
+def test_standalone_sorptivity() -> None:
+    """
+    Philip, J. R. (1960). General Method of Exact Solution of the
+    Concentration-Dependent Diffusion Equation.
+    Australian Journal of Physics, 13(1), 1-12. https://doi.org/10.1071/PH600001
+    """
+    o = jnp.linspace(0, 20, 500)
+    assert frontx.sorptivity(o, jnp.exp(-o), b=1, i=0) == pytest.approx(1, abs=1e-3)

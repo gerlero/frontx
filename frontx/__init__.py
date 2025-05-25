@@ -193,3 +193,17 @@ class InterpolatedSolution(AbstractSolution):
     ) -> float | jax.Array | np.ndarray[Any, Any]:
         Ithetado = self._sol.antiderivative()  # noqa: N806
         return (Ithetado(self.oi) - Ithetado(o)) - self.i * (self.oi - o)
+
+
+def sorptivity(
+    o: jax.Array | np.ndarray[Any, Any],
+    theta: jax.Array | np.ndarray[Any, Any],
+    /,
+    *,
+    b: float,
+    i: float,
+) -> jax.Array:
+    o = jnp.insert(o, 0, 0)
+    theta = jnp.insert(theta, 0, b)
+
+    return jnp.trapezoid(theta - i, o)
