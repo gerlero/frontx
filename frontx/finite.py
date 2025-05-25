@@ -7,6 +7,8 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
+from . import RESULTS
+
 
 class Solution(eqx.Module):
     D: Callable[
@@ -28,9 +30,13 @@ class Solution(eqx.Module):
         theta = self._sol.evaluate(t)
         return jnp.interp(r, jnp.linspace(0, self.r1, theta.size), theta)
 
+    @property
+    def result(self) -> RESULTS:
+        return self._sol.result
+
 
 @eqx.filter_jit
-def solve(
+def solve(  # noqa: PLR0913
     D: Callable[  # noqa: N803
         [float | jax.Array | np.ndarray[Any, Any]],
         float | jax.Array | np.ndarray[Any, Any],
@@ -40,6 +46,7 @@ def solve(
     *,
     i: jax.Array | np.ndarray[Any, Any],
     b: float | None = None,
+    throw: bool = True,
 ) -> Solution:
     i = jnp.asarray(i)
     dr = r1 / (i.size - 1)
@@ -75,6 +82,7 @@ def solve(
         y0=i if b is None else i.at[0].set(b),
         stepsize_controller=diffrax.PIDController(rtol=1e-3, atol=1e-6),
         saveat=diffrax.SaveAt(t0=True, t1=True, dense=True),
+        throw=throw,
     )
 
     return Solution(
