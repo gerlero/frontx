@@ -1,4 +1,4 @@
-# [<img src="logo.png" alt="Frontx logo" width=300></img>](https://github.com/gerlero/frontx)
+# [<img alt="Frontx logo" src="https://raw.githubusercontent.com/gerlero/frontx/main/logo.png" width=300></img>](https://github.com/gerlero/frontx)
 
 **[JAX](https://github.com/jax-ml/jax)-accelerated numerical library for nonlinear diffusion problems in semi-infinite domains**
 
