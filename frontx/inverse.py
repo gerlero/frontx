@@ -5,7 +5,6 @@ import jax.numpy as jnp
 import numpy as np
 from interpax import PchipInterpolator
 
-from . import RESULTS
 from ._boltzmann import AbstractSolution, boltzmannmethod
 
 
@@ -15,7 +14,6 @@ class InterpolatedSolution(AbstractSolution):
     _do_dtheta: PchipInterpolator
     _Iodtheta: PchipInterpolator
     _c: float
-    result: RESULTS
 
     def __init__(
         self,
@@ -50,7 +48,6 @@ class InterpolatedSolution(AbstractSolution):
         self._do_dtheta = inverse.derivative()
         self._Iodtheta = inverse.antiderivative()
         self._c = self._Iodtheta(i)
-        self.result = RESULTS.successful
 
     @boltzmannmethod
     def __call__(
