@@ -11,9 +11,6 @@ import optimistix as optx
 from ._boltzmann import AbstractSolution, boltzmannmethod, ode
 from ._util import vmap
 
-__version__ = "0.1.0"
-
-
 RESULTS = diffrax.RESULTS
 
 
