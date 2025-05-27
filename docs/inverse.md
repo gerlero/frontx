@@ -1,3 +1,3 @@
 # Inverse problems
 
-## ::: frontx.InterpolatedSolution
+## ::: frontx.inverse
