@@ -1,4 +1,5 @@
 import frontx
+import frontx.inverse
 import jax.numpy as jnp
 import pytest
 
@@ -11,7 +12,7 @@ def test_exact() -> None:
     """
     o = jnp.linspace(0, 20, 100)
 
-    sol = frontx.InterpolatedSolution(o, jnp.exp(-o))
+    sol = frontx.inverse.InterpolatedSolution(o, jnp.exp(-o))
 
     assert sol(o) == pytest.approx(jnp.exp(-o))
 
@@ -28,7 +29,7 @@ def test_exact_solve() -> None:
     """
     o = jnp.linspace(0, 20, 100)
 
-    sol = frontx.InterpolatedSolution(o, jnp.exp(-o))
+    sol = frontx.inverse.InterpolatedSolution(o, jnp.exp(-o))
 
     theta = frontx.solve(D=sol.D, b=1, i=1e-3, itol=5e-3)
 
@@ -43,7 +44,7 @@ def test_interpolated_sorptivity() -> None:
     """
     o = jnp.linspace(0, 20, 100)
 
-    sol = frontx.InterpolatedSolution(o, jnp.exp(-o))
+    sol = frontx.inverse.InterpolatedSolution(o, jnp.exp(-o))
 
     assert sol.sorptivity() == pytest.approx(1, abs=1e-4)
 
@@ -55,4 +56,6 @@ def test_standalone_sorptivity() -> None:
     Australian Journal of Physics, 13(1), 1-12. https://doi.org/10.1071/PH600001
     """
     o = jnp.linspace(0, 20, 500)
-    assert frontx.sorptivity(o, jnp.exp(-o), b=1, i=0) == pytest.approx(1, abs=1e-3)
+    assert frontx.inverse.sorptivity(o, jnp.exp(-o), b=1, i=0) == pytest.approx(
+        1, abs=1e-3
+    )
