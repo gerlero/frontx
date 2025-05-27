@@ -98,6 +98,12 @@ def boltzmannmethod(
 
 
 class AbstractSolution(eqx.Module):
+    D: eqx.AbstractVar[
+        Callable[
+            [float | jax.Array | np.ndarray[Any, Any]],
+            float | jax.Array | np.ndarray[Any, Any],
+        ]
+    ]
     oi: eqx.AbstractVar[float]
 
     @property
@@ -140,13 +146,6 @@ class AbstractSolution(eqx.Module):
         t: float | jax.Array | np.ndarray[Any, Any],
     ) -> float | jax.Array | np.ndarray[Any, Any]:
         return -r / (jnp.sqrt(t) * 2 * t) * self.d_do(r, t)
-
-    def D(  # noqa: N802
-        self,
-        _: float | jax.Array | np.ndarray[Any, Any],
-        /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
-        raise NotImplementedError
 
     def flux(
         self,
