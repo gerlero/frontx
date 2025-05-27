@@ -53,6 +53,11 @@ def test_validity_let(
 
 
 def test_mass_conservation() -> None:
+    """
+    Gerlero, G. S., Valdez, A. R., Urteaga, R., & Kler, P. A. (2022).
+    Validity of capillary imbibition models in paper-based microfluidic applications.
+    Transport in Porous Media, 141(2), 359-378. https://doi.org/10.1007/s11242-021-01724-w
+    """
     D = LETd(L=0.004569, E=12930, T=1.505, Dwt=4.660e-4, theta_range=(0.019852, 0.7))  # noqa: N806
     b = 0.7 - 1e-7
     i = 0.025
