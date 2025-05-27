@@ -16,7 +16,6 @@ class Solution(eqx.Module):
         float | jax.Array | np.ndarray[Any, Any],
     ]
     r1: float
-    t1: float
     _sol: Callable[
         [float | jax.Array | np.ndarray[Any, Any]],
         float | jax.Array | np.ndarray[Any, Any],
@@ -29,6 +28,10 @@ class Solution(eqx.Module):
     ) -> float | jax.Array | np.ndarray[Any, Any]:
         theta = self._sol.evaluate(t)
         return jnp.interp(r, jnp.linspace(0, self.r1, theta.size), theta)
+
+    @property
+    def t1(self) -> float:
+        return self._sol.t1
 
     @property
     def result(self) -> RESULTS:
@@ -88,6 +91,5 @@ def solve(  # noqa: PLR0913
     return Solution(
         D=D,
         r1=r1,
-        t1=t1,
         _sol=sol,
     )
