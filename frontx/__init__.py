@@ -70,7 +70,7 @@ def solve(  # noqa: PLR0913
     b: float,
     i: float,
     itol: float = 1e-3,
-    maxiter: int = 100,
+    max_steps: int = 100,
     throw: bool = True,
 ) -> Solution:
     term = ode(D)
@@ -110,7 +110,7 @@ def solve(  # noqa: PLR0913
             rtol=jnp.inf, atol=itol, expand_if_necessary=True
         ),  # ty: ignore[missing-argument]
         y0=0,
-        max_steps=maxiter,
+        max_steps=max_steps,
         has_aux=True,
         options={"lower": 0, "upper": (i - b) / (2 * jnp.sqrt(D(b)))},
         throw=throw,
