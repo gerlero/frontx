@@ -1,5 +1,6 @@
 from typing import Any, Generic, TypeVar
 
+import equinox as eqx
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -111,6 +112,7 @@ class ScaledSolution(AbstractSolution, Generic[T]):
             D0=(S / original.sorptivity()) ** 2,
         )
 
+    @eqx.filter_jit
     @staticmethod
     def fitting_data(
         original: T,
