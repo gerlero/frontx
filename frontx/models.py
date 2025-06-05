@@ -6,10 +6,11 @@ import jax
 import numpy as np
 
 from ._util import vmap
+from .neural import Param
 
 
 class _MoistureDiffusivityModel(eqx.Module):
-    theta_range: eqx.AbstractVar[tuple[float, float]]
+    theta_range: eqx.AbstractVar[tuple[float | Param, float | Param]]
 
     def _Se(  # noqa: N802
         self,
@@ -30,11 +31,11 @@ class _MoistureDiffusivityModel(eqx.Module):
 
 
 class LETd(_MoistureDiffusivityModel):
-    L: float
-    E: float
-    T: float
-    Dwt: float = 1
-    theta_range: tuple[float, float] = (0, 1)
+    L: float | Param
+    E: float | Param
+    T: float | Param
+    Dwt: float | Param = 1
+    theta_range: tuple[float | Param, float | Param] = (0, 1)
 
     def __call__(
         self, theta: float | jax.Array | np.ndarray[Any, Any]
@@ -44,11 +45,11 @@ class LETd(_MoistureDiffusivityModel):
 
 
 class _RichardsModel(_MoistureDiffusivityModel):
-    Ks: eqx.AbstractVar[float | None]
-    k: eqx.AbstractVar[float | None]
-    g: eqx.AbstractVar[float]
-    rho: eqx.AbstractVar[float]
-    mu: eqx.AbstractVar[float]
+    Ks: eqx.AbstractVar[float | Param | None]
+    k: eqx.AbstractVar[float | Param | None]
+    g: eqx.AbstractVar[float | Param]
+    rho: eqx.AbstractVar[float | Param]
+    mu: eqx.AbstractVar[float | Param]
 
     @property
     def _Ks(self) -> float | jax.Array:  # noqa: N802
@@ -101,15 +102,15 @@ class _RichardsModel(_MoistureDiffusivityModel):
 
 
 class BrooksAndCorey(_RichardsModel):
-    n: float
-    l: float = 1  # noqa: E741
-    Ks: float | None = None
+    n: float | Param
+    l: float | Param = 1  # noqa: E741
+    Ks: float | Param | None = None
     k: float | None = None
-    g: float = 9.81
-    rho: float = 1e3
-    mu: float = 1e-3
-    alpha: float = 1
-    theta_range: tuple[float, float] = (0, 1)
+    g: float | Param = 9.81
+    rho: float | Param = 1e3
+    mu: float | Param = 1e-3
+    alpha: float | Param = 1
+    theta_range: tuple[float | Param, float | Param] = (0, 1)
 
     def _h(
         self,
@@ -129,16 +130,16 @@ class BrooksAndCorey(_RichardsModel):
 
 
 class VanGenuchten(_RichardsModel):
-    n: float | None = None
-    m: float | None = None
-    l: float = 0.5  # noqa: E741
-    Ks: float | None = None
-    k: float | None = None
-    g: float = 9.81
-    rho: float = 1e3
-    mu: float = 1e-3
-    alpha: float = 1
-    theta_range: tuple[float, float] = (0, 1)
+    n: float | Param | None = None
+    m: float | Param | None = None
+    l: float | Param = 0.5  # noqa: E741
+    Ks: float | Param | None = None
+    k: float | Param | None = None
+    g: float | Param = 9.81
+    rho: float | Param = 1e3
+    mu: float | Param = 1e-3
+    alpha: float | Param = 1
+    theta_range: tuple[float | Param, float | Param] = (0, 1)
 
     @property
     def _n(self) -> float | jax.Array:
@@ -180,19 +181,19 @@ class VanGenuchten(_RichardsModel):
 
 
 class LETxs(_RichardsModel):
-    Lw: float
-    Ew: float
-    Tw: float
-    Ls: float
-    Es: float
-    Ts: float
-    Ks: float | None = None
+    Lw: float | Param
+    Ew: float | Param
+    Tw: float | Param
+    Ls: float | Param
+    Es: float | Param
+    Ts: float | Param
+    Ks: float | Param | None = None
     k: float | None = None
-    g: float = 9.81
-    rho: float = 1e3
-    mu: float = 1e-3
-    alpha: float = 1
-    theta_range: tuple[float, float] = (0, 1)
+    g: float | Param = 9.81
+    rho: float | Param = 1e3
+    mu: float | Param = 1e-3
+    alpha: float | Param = 1
+    theta_range: tuple[float | Param, float | Param] = (0, 1)
 
     def _kr(
         self,
