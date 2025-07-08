@@ -28,7 +28,7 @@ classifiers = [
 requires-python = ">=3.10"
 dependencies = [
     "diffrax>=0.7,<0.8",
-    "equinox>=0.12.1,<0.13",
+    "equinox>=0.12.1,<0.14",
     "interpax>=0.3.8,<0.4",
     "jax>=0.6,<0.7",
     "numpy>=1,<3",
