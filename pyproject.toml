@@ -55,7 +55,7 @@ dev = [
 docs = [
     "mkdocs>=1.6.1,<2",
     "mkdocs-material>=9.6.12,<10",
-    "mkdocstrings[python]>=0.29.1,<0.30",
+    "mkdocstrings[python]>=0.29.1,<0.31",
 ]
 
 [project.urls]
