@@ -103,9 +103,7 @@ def solve(  # noqa: PLR0913
 
     root: optx.Solution = optx.root_find(
         shoot,
-        solver=optx.Bisection(
-            rtol=jnp.inf, atol=itol, expand_if_necessary=True
-        ),  # ty: ignore[missing-argument]
+        solver=optx.Bisection(rtol=jnp.inf, atol=itol, expand_if_necessary=True),  # ty: ignore[missing-argument]
         y0=0,
         max_steps=max_steps,
         has_aux=True,

@@ -20,7 +20,7 @@ def ode(
 ) -> diffrax.ODETerm[jax.Array]:
     @diffrax.ODETerm[jax.Array]
     def term(
-        o: bool | float | jax.Array | np.ndarray[Any, Any],
+        o: float | jax.Array | np.ndarray[Any, Any],
         y: jax.Array,
         args: None,  # noqa: ARG001
     ) -> jax.Array:
