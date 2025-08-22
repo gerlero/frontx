@@ -36,8 +36,12 @@ dependencies = [
 ]
 
 [dependency-groups]
+examples = ["frontx[examples]"]
 lint = ["ruff"]
-typing = ["ty"]
+typing = [
+    {include-group = "examples"},
+    "ty"
+]
 test = [
     "fronts>=1,<2",
     "pytest>=8,<9",
@@ -45,6 +49,7 @@ test = [
 ]
 docs = ["frontx[docs]"]
 dev = [
+    {include-group = "examples"},
     {include-group = "lint"},
     {include-group = "typing"},
     {include-group = "test"},
@@ -52,6 +57,7 @@ dev = [
 ]
 
 [project.optional-dependencies]
+examples = ["matplotlib>=3,<4"]
 docs = [
     "mkdocs>=1.6.1,<2",
     "mkdocs-material>=9.6.12,<10",
