@@ -5,9 +5,9 @@ build-backend = "uv_build"
 [project]
 name = "frontx"
 version = "0.1.0"
-authors = [
-    { name = "Gabriel S. Gerlero", email = "ggerlero@cimec.unl.edu.ar" },
-]
+license = "Apache-2.0"
+license-files = ["LICENSE.txt"]
+authors = [{ name = "Gabriel S. Gerlero", email = "ggerlero@cimec.unl.edu.ar" }]
 description = "Nonlinear diffusion problems with JAX"
 readme = "README.md"
 classifiers = [
