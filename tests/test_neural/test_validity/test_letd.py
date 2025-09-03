@@ -9,7 +9,7 @@ from .validity import o, std, theta, theta_b, theta_i
 jax.config.update("jax_enable_x64", True)  # noqa: FBT003
 
 
-def test_vangenuchten() -> None:
+def test_letd() -> None:
     """
     Gerlero, G. S., Valdez, A. R., Urteaga, R., & Kler, P. A. (2022).
     Validity of capillary imbibition models in paper-based microfluidic applications.
