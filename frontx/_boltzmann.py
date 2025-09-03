@@ -158,10 +158,3 @@ class AbstractSolution(eqx.Module):
         self, o: float | jax.Array | np.ndarray[Any, Any] = 0.0
     ) -> float | jax.Array | np.ndarray[Any, Any]:
         return -2 * self.D(self(o)) * self.d_do(o)
-
-    def residual(
-        self, o: float | jax.Array | np.ndarray[Any, Any]
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
-        lhs = -o / 2 * self.d_do(o)
-        rhs = vmap(jax.grad(lambda o: (self.D(self(o)) * self.d_do(o))))(o)
-        return lhs - rhs
