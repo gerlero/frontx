@@ -57,6 +57,7 @@ def boltzmannmethod(
         [T, float | jax.Array | np.ndarray[Any, Any]],
         float | jax.Array | np.ndarray[Any, Any],
     ],
+    /,
 ) -> _BoltzmannTransformed:
     @overload
     def boltzmann_wrapper(
