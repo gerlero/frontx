@@ -191,6 +191,7 @@ def fit(  # noqa: PLR0913
     ) -> jax.Array:
         net = eqx.combine(trainable_net, static_net)
 
+        assert oi is not None
         physics_loss = net.physics_loss(
             i=i, b=b, oi=oi, residual_cutoff=residual_cutoff
         )
@@ -210,6 +211,7 @@ def fit(  # noqa: PLR0913
     ) -> tuple[_PINN, optax.OptState, int, float, float]:
         net = eqx.combine(trainable_net, static_net)
 
+        assert oi is not None
         residuals = net.physics_residuals(i=i, b=b, oi=oi)
         spike_score = (
             jnp.max(jnp.abs(residuals)) - jnp.percentile(jnp.abs(residuals), 99)
@@ -220,7 +222,7 @@ def fit(  # noqa: PLR0913
             residual_cutoff,
         )
 
-        physics_loss = net.physics_loss(
+        physics_loss = net.physics_loss(  # ty: ignore [invalid-assignment]
             i=i, b=b, oi=oi, residual_cutoff=residual_cutoff
         )
 
