@@ -4,13 +4,10 @@ build:
   os: ubuntu-lts-latest
   tools:
     python: "3"
+  jobs:
+    install:
+       - pip install --upgrade pip
+       - pip install --group docs
 
 mkdocs:
   configuration: mkdocs.yml
-
-python:
-  install:
-    - method: pip
-      path: .
-      extra_requirements:
-        - docs
