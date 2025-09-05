@@ -37,6 +37,14 @@ dependencies = [
     "parametrix>=0.1,<0.2",
 ]
 
+[project.optional-dependencies]
+examples = ["matplotlib>=3,<4"]
+
+[project.urls]
+Homepage = "https://github.com/gerlero/frontx"
+Repository = "https://github.com/gerlero/frontx"
+Documentation = "https://frontx.readthedocs.io"
+
 [dependency-groups]
 examples = ["frontx[examples]"]
 lint = ["ruff"]
@@ -49,7 +57,11 @@ test = [
     "pytest>=8,<9",
     "pytest-cov"
 ]
-docs = ["frontx[docs]"]
+docs = [
+    "mkdocs>=1.6.1,<2",
+    "mkdocs-material>=9.6.12,<10",
+    "mkdocstrings[python]>=0.29.1,<0.31",
+]
 dev = [
     {include-group = "examples"},
     {include-group = "lint"},
@@ -57,19 +69,6 @@ dev = [
     {include-group = "test"},
     {include-group = "docs"},
 ]
-
-[project.optional-dependencies]
-examples = ["matplotlib>=3,<4"]
-docs = [
-    "mkdocs>=1.6.1,<2",
-    "mkdocs-material>=9.6.12,<10",
-    "mkdocstrings[python]>=0.29.1,<0.31",
-]
-
-[project.urls]
-Homepage = "https://github.com/gerlero/frontx"
-Repository = "https://github.com/gerlero/frontx"
-Documentation = "https://frontx.readthedocs.io"
 
 [tool.uv.build-backend]
 module-root = "."
