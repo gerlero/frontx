@@ -27,5 +27,6 @@ nav:
     - 'index.md'
     - 'solve.md'
     - 'inverse.md'
+    - 'neural.md'
     - 'finite.md'
     - 'models.md'
