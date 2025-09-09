@@ -1,5 +1,4 @@
 import frontx
-import frontx.inverse
 import jax.numpy as jnp
 import pytest
 from frontx.models import LETd
@@ -13,7 +12,7 @@ def test_inteprolated_exact() -> None:
     """
     o = jnp.linspace(0, 20, 100)
 
-    sol = frontx.inverse.InterpolatedSolution(o, jnp.exp(-o))
+    sol = frontx.InterpolatedSolution(o, jnp.exp(-o))
 
     assert sol(o) == pytest.approx(jnp.exp(-o))
 
@@ -30,7 +29,7 @@ def test_interpolated_exact_solve() -> None:
     """
     o = jnp.linspace(0, 20, 100)
 
-    sol = frontx.inverse.InterpolatedSolution(o, jnp.exp(-o))
+    sol = frontx.InterpolatedSolution(o, jnp.exp(-o))
 
     theta = frontx.solve(D=sol.D, b=1, i=1e-3, itol=5e-3)
 
@@ -45,7 +44,7 @@ def test_interpolated_sorptivity() -> None:
     """
     o = jnp.linspace(0, 20, 100)
 
-    sol = frontx.inverse.InterpolatedSolution(o, jnp.exp(-o))
+    sol = frontx.InterpolatedSolution(o, jnp.exp(-o))
 
     assert sol.sorptivity() == pytest.approx(1, abs=1e-4)
 
@@ -57,9 +56,7 @@ def test_standalone_sorptivity() -> None:
     Australian Journal of Physics, 13(1), 1-12. https://doi.org/10.1071/PH600001
     """
     o = jnp.linspace(0, 20, 500)
-    assert frontx.inverse.sorptivity(o, jnp.exp(-o), b=1, i=0) == pytest.approx(
-        1, abs=1e-3
-    )
+    assert frontx.sorptivity(o, jnp.exp(-o), b=1, i=0) == pytest.approx(1, abs=1e-3)
 
 
 def test_scaled_solution_sorptivity() -> None:
@@ -74,9 +71,9 @@ def test_scaled_solution_sorptivity() -> None:
 
     sol = frontx.solve(D, b=b, i=i)
 
-    unscaled = frontx.inverse.ScaledSolution(sol, D0=1 / D.Dwt)
+    unscaled = frontx.ScaledSolution(sol, D0=1 / D.Dwt)
 
-    scaled = frontx.inverse.ScaledSolution.with_sorptivity(unscaled, sol.sorptivity())
+    scaled = frontx.ScaledSolution.with_sorptivity(unscaled, sol.sorptivity())
 
     assert scaled.sorptivity() == pytest.approx(sol.sorptivity())
 
@@ -96,11 +93,11 @@ def test_scaled_solution_data() -> None:
 
     sol = frontx.solve(D, b=b, i=i)
 
-    unscaled = frontx.inverse.ScaledSolution(sol, D0=1 / D.Dwt)
+    unscaled = frontx.ScaledSolution(sol, D0=1 / D.Dwt)
 
     o = jnp.linspace(0, sol.oi, 500)
 
-    scaled = frontx.inverse.ScaledSolution.fitting_data(unscaled, o, sol(o))
+    scaled = frontx.ScaledSolution.fitting_data(unscaled, o, sol(o))
 
     assert scaled(o) == pytest.approx(sol(o), abs=1e-6)
     assert scaled.d_do(o) == pytest.approx(sol.d_do(o), abs=1e-2)

@@ -1,5 +1,9 @@
 # Inverse problems
 
-## ::: frontx.inverse
+## ::: frontx.InterpolatedSolution
+
+## ::: frontx.sorptivity
+
+## ::: frontx.ScaledSolution
 
 ## ::: frontx.neural
