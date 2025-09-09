@@ -5,8 +5,8 @@ import equinox as eqx
 import jax
 import numpy as np
 
+from . import Param
 from ._util import vmap
-from .neural import Param
 
 
 class _MoistureDiffusivityModel(eqx.Module):

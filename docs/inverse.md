@@ -6,4 +6,6 @@
 
 ## ::: frontx.ScaledSolution
 
+## ::: frontx.Param
+
 ## ::: frontx.neural

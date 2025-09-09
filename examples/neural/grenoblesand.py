@@ -24,8 +24,8 @@ ref = frontx.solve(
 )
 
 D = VanGenuchten(
-    Ks=frontx.neural.Param(min=0.0),
-    m=frontx.neural.Param(min=0.0, max=1.0),
+    Ks=frontx.Param(min=0.0),
+    m=frontx.Param(min=0.0, max=1.0),
     theta_range=(0.0, theta_s),
 )
 

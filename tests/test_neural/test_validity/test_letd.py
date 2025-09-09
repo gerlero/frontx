@@ -17,11 +17,11 @@ def test_letd() -> None:
     """
 
     D = LETd(  # noqa: N806
-        Dwt=frontx.neural.Param(o[-1] ** 2, min=0.0),
-        L=frontx.neural.Param(),
-        E=frontx.neural.Param(min=0.0),
-        T=frontx.neural.Param(),
-        theta_range=(frontx.neural.Param(min=0.0, max=0.025), 0.7),
+        Dwt=frontx.Param(o[-1] ** 2, min=0.0),
+        L=frontx.Param(),
+        E=frontx.Param(min=0.0),
+        T=frontx.Param(),
+        theta_range=(frontx.Param(min=0.0, max=0.025), 0.7),
     )
 
     sol = frontx.neural.fit(D, o, theta, std, i=theta_i, b=theta_b)

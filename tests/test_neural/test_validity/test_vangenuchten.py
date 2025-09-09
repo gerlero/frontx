@@ -18,10 +18,10 @@ def test_vangenuchten() -> None:
 
     D = VanGenuchten(  # noqa: N806
         k=9.8e-14,
-        alpha=frontx.neural.Param(min=0.0),
-        m=frontx.neural.Param(min=0.0, max=1.0),
-        l=frontx.neural.Param(),
-        theta_range=(frontx.neural.Param(min=0.0, max=theta_i), theta_s),
+        alpha=frontx.Param(min=0.0),
+        m=frontx.Param(min=0.0, max=1.0),
+        l=frontx.Param(),
+        theta_range=(frontx.Param(min=0.0, max=theta_i), theta_s),
     )
 
     sol = frontx.neural.fit(D, o, theta, std, i=theta_i, b=theta_b)
