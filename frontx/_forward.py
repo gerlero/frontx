@@ -80,7 +80,7 @@ def solve(  # noqa: PLR0913
     def shoot(
         d_dob: float | jax.Array,
         args: None,  # noqa: ARG001
-    ) -> tuple[jax.Array | diffrax.Solution]:
+    ) -> tuple[jax.Array, diffrax.Solution]:
         sol = diffrax.diffeqsolve(
             term,
             solver=diffrax.Kvaerno5(),
@@ -99,7 +99,7 @@ def solve(  # noqa: PLR0913
             sol.ys[-1, 0] - i,
             direction * jnp.inf,
         )
-        return residual, sol  # ty: ignore[invalid-return-type]
+        return residual, sol
 
     root: optx.Solution = optx.root_find(
         shoot,
