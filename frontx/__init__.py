@@ -1,5 +1,5 @@
 from ._forward import RESULTS, Solution, solve
-from ._inverse import InterpolatedSolution, Param, ScaledSolution, sorptivity
+from ._inverse import InterpolatedSolution, Param, ScaledSolution, fit, sorptivity
 
 __all__ = [
     "RESULTS",
@@ -7,6 +7,7 @@ __all__ = [
     "Param",
     "ScaledSolution",
     "Solution",
+    "fit",
     "solve",
     "sorptivity",
 ]

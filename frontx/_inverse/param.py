@@ -1,8 +1,9 @@
 from collections.abc import Sequence
-from typing import TypeVar, overload
+from typing import Any, TypeVar, overload
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 import parametrix as pmx
 
 
@@ -65,7 +66,9 @@ _T = TypeVar("_T")
 _O = TypeVar("_O")
 
 
-def set_param_values(pytree: _T, values: Sequence[float], /) -> _T:
+def set_param_values(
+    pytree: _T, values: jax.Array | np.ndarray[Any, Any] | Sequence[float], /
+) -> _T:
     i = 0
 
     @overload
@@ -77,7 +80,7 @@ def set_param_values(pytree: _T, values: Sequence[float], /) -> _T:
     def replace(obj: Param | _O) -> Param | _O:
         nonlocal i
         if isinstance(obj, Param):
-            obj = Param(values[i], min=obj.min, max=obj.max)
+            obj = Param(values[i], min=obj.min, max=obj.max)  # ty: ignore [invalid-argument-type]
             i += 1
         return obj
 
