@@ -118,7 +118,7 @@ def fit(  # noqa: PLR0913
     *,
     i: float,
     b: float,
-    fit_D0: Literal["data", "sorptivity", None] = "data",  # noqa: N803
+    fit_D0: Literal["data", "sorptivity"] | None = "data",  # noqa: N803
 ) -> ScaledSolution[Solution] | Solution:
     params = get_params(D)
     bounds = [(p.min, p.max) for p in params]
