@@ -1,13 +1,18 @@
-from typing import Any, Generic, TypeVar
+from collections.abc import Callable
+from typing import Any, Generic, Literal, TypeVar
 
 import equinox as eqx
 import jax
 import jax.numpy as jnp
 import numpy as np
 import optimistix as optx
+from scipy.optimize import differential_evolution
 
-from frontx import RESULTS
+from frontx import RESULTS, Solution, solve
 from frontx._boltzmann import AbstractSolution, boltzmannmethod
+
+from . import sorptivity
+from .param import get_params, set_param_values
 
 T = TypeVar("T", bound=AbstractSolution)
 
@@ -99,3 +104,54 @@ class ScaledSolution(AbstractSolution, Generic[T]):
     @property
     def oi(self) -> float:
         return self.original.oi * jnp.sqrt(self.D0)
+
+
+def fit(  # noqa: PLR0913
+    D: Callable[  # noqa: N803
+        [float | jax.Array | np.ndarray[Any, Any]],
+        float | jax.Array | np.ndarray[Any, Any],
+    ],
+    o: jax.Array | np.ndarray[Any, Any],
+    theta: jax.Array | np.ndarray[Any, Any],
+    /,
+    sigma: float | jax.Array | np.ndarray[Any, Any] = 1,
+    *,
+    i: float,
+    b: float,
+    fit_D0: Literal["data", "sorptivity", None] = "data",  # noqa: N803
+) -> ScaledSolution[Solution] | Solution:
+    params = get_params(D)
+    bounds = [(p.min, p.max) for p in params]
+    x0 = [p.value for p in params]
+
+    if fit_D0 == "sorptivity":
+        S = sorptivity(o, theta, b=b, i=i)  # noqa: N806
+
+    def candidate(
+        x: jax.Array | np.ndarray[Any, Any],
+    ) -> ScaledSolution[Solution] | Solution:
+        jax.debug.print("Current parameters: {x}", x=x)
+        D_ = set_param_values(D, x)  # noqa: N806
+        sol = solve(D_, i=i, b=b, throw=False)
+        match fit_D0:
+            case "data":
+                return ScaledSolution.fitting_data(
+                    sol, o, theta, sigma=sigma, throw=False
+                )
+            case "sorptivity":
+                return ScaledSolution.with_sorptivity(sol, S)
+            case None:
+                return sol
+
+    @jax.jit
+    def cost(x: jax.Array | np.ndarray[Any, Any]) -> float:
+        sol = candidate(x)
+        result = sol.original.result if isinstance(sol, ScaledSolution) else sol.result
+        return jax.lax.cond(
+            result == RESULTS.successful,
+            lambda: jnp.mean(((sol(o) - theta) / sigma) ** 2),
+            lambda: jnp.inf,
+        )
+
+    x = differential_evolution(cost, bounds=bounds, x0=x0, maxiter=15).x
+    return candidate(x)
