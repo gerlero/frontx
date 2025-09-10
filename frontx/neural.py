@@ -199,7 +199,7 @@ def fit(  # noqa: PLR0913
 
     physics_loss_target = 1e-5
 
-    trainable_net, opt_state, step, physics_loss, residual_cutoff = jax.lax.while_loop(
+    trainable_net, opt_state, _, physics_loss, _ = jax.lax.while_loop(
         lambda val: (val[2] <= max_steps) & (val[3] > physics_loss_target),
         lambda val: train_step(*val),
         (
