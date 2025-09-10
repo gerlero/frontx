@@ -79,6 +79,7 @@ def test_scaled_solution_sorptivity() -> None:
 
     assert scaled.D0 == pytest.approx(D.Dwt)  # noqa: SIM300
     assert scaled.oi == pytest.approx(sol.oi)
+    assert scaled.result == frontx.RESULTS.successful
 
 
 def test_scaled_solution_data() -> None:
@@ -105,3 +106,4 @@ def test_scaled_solution_data() -> None:
     assert scaled.D0 == pytest.approx(D.Dwt)  # noqa: SIM300
     assert scaled.sorptivity() == pytest.approx(sol.sorptivity())
     assert scaled.oi == pytest.approx(sol.oi)
+    assert scaled.result == frontx.RESULTS.successful
