@@ -1,12 +1,9 @@
 import frontx
 import frontx.neural
-import jax
 import numpy as np
 from frontx.models import VanGenuchten
 
 from .validity import o, std, theta, theta_b, theta_i, theta_s
-
-jax.config.update("jax_enable_x64", True)  # noqa: FBT003
 
 
 def test_vangenuchten() -> None:
