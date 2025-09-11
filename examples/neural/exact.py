@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-import equinox as eqx
+from typing import Any
+
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
@@ -12,12 +13,9 @@ import frontx.neural
 jax.config.update("jax_enable_x64", True)  # noqa: FBT003
 
 
-class Philip(eqx.Module):
-    def __call__(self, theta: float | jax.Array) -> float | jax.Array:
-        return (1 - jnp.log(theta)) / 2
+def D(theta: float | jax.Array | np.ndarray[Any, Any]) -> float | jax.Array:  # noqa: N802
+    return (1 - jnp.log(theta)) / 2
 
-
-D = Philip()
 
 o = np.linspace(0, 20, 100)
 

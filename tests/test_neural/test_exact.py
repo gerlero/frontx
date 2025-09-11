@@ -1,4 +1,5 @@
-import equinox as eqx
+from typing import Any
+
 import frontx
 import frontx.neural
 import jax
@@ -16,14 +17,13 @@ def test_exact() -> None:
     Australian Journal of Physics, 13(1), 1-12. https://doi.org/10.1071/PH600001
     """
 
-    class Philip(eqx.Module):
-        def __call__(self, theta: jax.Array) -> jax.Array:
-            return (1 - jnp.log(theta)) / 2
+    def D(theta: float | jax.Array | np.ndarray[Any, Any]) -> float | jax.Array:  # noqa: N802
+        return (1 - jnp.log(theta)) / 2
 
     o = np.linspace(0, 20, 100)
 
     ref = np.exp(-o)
 
-    sol = frontx.neural.fit(Philip(), o, ref, i=0, b=1)
+    sol = frontx.neural.fit(D, o, ref, i=0, b=1)
 
     assert sol(o) == pytest.approx(ref, abs=1e-3)
