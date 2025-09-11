@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import jax
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -15,8 +14,6 @@ from validity import (  # ty: ignore [unresolved-import]
     theta_i,
     theta_s,
 )
-
-jax.config.update("jax_enable_x64", True)  # noqa: FBT003
 
 plt.scatter(o, theta, label="Experimental", color="gray")
 

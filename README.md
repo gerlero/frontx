@@ -19,18 +19,3 @@ Install with pip:
 ```bash
 pip install frontx
 ```
-
-## ⚙️ Enabling 64-bit (double precision) support in JAX
-
-Some problems require double precision (i.e., `float64`) types to be solvable. By default, JAX uses 32-bit single precision numbers for performance reasons.
-
-To enable 64-bit support, use the following code snippet:
-
-```python
-import jax
-jax.config.update("jax_enable_x64", True)
-```
-
-☝️ **Important**:
-- This setting must be applied at the very beginning of your script.
-- JAX does not persist this configuration between runs: you'll need to do this each time you start a new session.
