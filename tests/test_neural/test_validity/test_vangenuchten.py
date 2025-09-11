@@ -1,9 +1,8 @@
 import frontx
 import frontx.neural
 import numpy as np
+from frontx.examples.data.validity import o, std, theta, theta_b, theta_i, theta_s
 from frontx.models import VanGenuchten
-
-from .validity import o, std, theta, theta_b, theta_i, theta_s
 
 
 def test_vangenuchten() -> None:
