@@ -5,8 +5,7 @@ import numpy as np
 
 import frontx
 import frontx.neural
-from frontx.models import VanGenuchten
-from validity import (  # ty: ignore [unresolved-import]
+from frontx.examples.data.validity import (
     o,
     std,
     theta,
@@ -14,14 +13,15 @@ from validity import (  # ty: ignore [unresolved-import]
     theta_i,
     theta_s,
 )
+from frontx.models import LETd
 
 plt.scatter(o, theta, label="Experimental", color="gray")
 
-D = VanGenuchten(
-    k=9.8e-14,
-    alpha=frontx.Param(min=0.0),
-    m=frontx.Param(min=0.0, max=1.0),
-    l=frontx.Param(),
+D = LETd(
+    Dwt=frontx.Param(o[-1] ** 2, min=0.0),
+    L=frontx.Param(),
+    E=frontx.Param(min=0.0),
+    T=frontx.Param(),
     theta_range=(frontx.Param(min=0.0, max=theta_i), theta_s),
 )
 
@@ -34,7 +34,7 @@ sol = frontx.neural.fit(
     sigma=std,
 )
 
-rchisq = np.sum((theta - sol(o)) ** 2 / std**2) / (len(o) - 4)
+rchisq = np.sum((theta - sol(o)) ** 2 / std**2) / (len(o) - 5)
 print("Reduced chi-squared:", rchisq)  # noqa: T201
 
 o_display = np.linspace(0, o[-1] * 1.05, 1_000)
@@ -47,7 +47,7 @@ sol2 = frontx.solve(
     b=theta_b,
 )
 
-rchisq = np.sum((theta - sol2(o)) ** 2 / std**2) / (len(o) - 4)
+rchisq = np.sum((theta - sol2(o)) ** 2 / std**2) / (len(o) - 5)
 print("Reduced chi-squared (check):", rchisq)  # noqa: T201
 
 plt.plot(o_display, sol2(o=o_display), label="frontx", color="blue")

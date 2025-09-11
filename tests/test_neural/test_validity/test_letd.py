@@ -1,9 +1,8 @@
 import frontx
 import frontx.neural
 import numpy as np
+from frontx.examples.data.validity import o, std, theta, theta_b, theta_i, theta_s
 from frontx.models import LETd
-
-from .validity import o, std, theta, theta_b, theta_i
 
 
 def test_letd() -> None:
@@ -18,7 +17,7 @@ def test_letd() -> None:
         L=frontx.Param(),
         E=frontx.Param(min=0.0),
         T=frontx.Param(),
-        theta_range=(frontx.Param(min=0.0, max=0.025), 0.7),
+        theta_range=(frontx.Param(min=0.0, max=0.025), theta_s),
     )
 
     sol = frontx.neural.fit(D, o, theta, std, i=theta_i, b=theta_b)

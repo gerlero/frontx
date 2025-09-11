@@ -1,4 +1,4 @@
-from pathlib import Path
+import importlib.resources
 
 import numpy as np
 
@@ -12,7 +12,11 @@ theta_s = 0.7
 theta_b = theta_s - 1e-7
 theta_i = 0.025
 
-_file = np.load(Path(__file__).parent / "processed.npz")
-o = _file["o"]
-theta = theta_i + (theta_s - theta_i) * _file["I"]
-std = (theta_s - theta_i) * _file["std"]
+with importlib.resources.open_binary(
+    "frontx.examples.data.validity", "processed.npz"
+) as p:
+    _file = np.load(p)
+
+    o = _file["o"]
+    theta = theta_i + (theta_s - theta_i) * _file["I"]
+    std = (theta_s - theta_i) * _file["std"]

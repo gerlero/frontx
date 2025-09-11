@@ -11,12 +11,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import frontx
+from frontx.examples.data.validity import o, theta, theta_i, theta_s
 from frontx.models import BrooksAndCorey, LETd, LETxs, VanGenuchten
 
 jax.config.update("jax_enable_x64", True)  # noqa: FBT003
 
-theta_s = 0.7
-theta_i = 0.025
+
+plt.scatter(o, theta, label="Experimental", color="gray")
+
 epsilon = 1e-7
 
 bc = BrooksAndCorey(n=0.2837, l=4.795, Ks=3.983e-6, theta_range=(2.378e-5, theta_s))
