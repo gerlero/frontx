@@ -6,13 +6,12 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import optimistix as optx
-from scipy.optimize import differential_evolution
 
 from frontx import RESULTS, Solution, solve
 from frontx._boltzmann import AbstractSolution, boltzmannmethod
 
 from . import sorptivity
-from .param import get_params, set_param_values
+from .param import de_fit
 
 T = TypeVar("T", bound=AbstractSolution)
 
@@ -119,20 +118,18 @@ def fit(  # noqa: PLR0913
     i: float,
     b: float,
     fit_D0: Literal["data", "sorptivity"] | None = "data",  # noqa: N803
+    max_steps: int = 15,
 ) -> ScaledSolution[Solution] | Solution:
-    params = get_params(D)
-    bounds = [(p.min, p.max) for p in params]
-    x0 = [p.value for p in params]
-
     if fit_D0 == "sorptivity":
         S = sorptivity(o, theta, b=b, i=i)  # noqa: N806
 
     def candidate(
-        x: jax.Array | np.ndarray[Any, Any],
+        D: Callable[  # noqa: N803
+            [float | jax.Array | np.ndarray[Any, Any]],
+            float | jax.Array | np.ndarray[Any, Any],
+        ],
     ) -> ScaledSolution[Solution] | Solution:
-        jax.debug.print("Current parameters: {x}", x=x)
-        D_ = set_param_values(D, x)  # noqa: N806
-        sol = solve(D_, i=i, b=b, throw=False)
+        sol = solve(D, i=i, b=b, throw=False)
         match fit_D0:
             case "data":
                 return ScaledSolution.fitting_data(
@@ -143,9 +140,7 @@ def fit(  # noqa: PLR0913
             case None:
                 return sol
 
-    @jax.jit
-    def cost(x: jax.Array | np.ndarray[Any, Any]) -> float:
-        sol = candidate(x)
+    def cost(sol: ScaledSolution[Solution] | Solution) -> float:
         result = sol.original.result if isinstance(sol, ScaledSolution) else sol.result
         return jax.lax.cond(
             result == RESULTS.successful,
@@ -153,5 +148,4 @@ def fit(  # noqa: PLR0913
             lambda: jnp.inf,
         )
 
-    x = differential_evolution(cost, bounds=bounds, x0=x0, maxiter=15).x
-    return candidate(x)
+    return de_fit(candidate, cost, initial=D, max_steps=max_steps)

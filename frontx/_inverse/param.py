@@ -1,10 +1,11 @@
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from typing import Any, TypeVar, overload
 
 import jax
 import jax.numpy as jnp
 import numpy as np
 import parametrix as pmx
+from scipy.optimize import differential_evolution
 
 
 class Param(pmx.Param[float]):
@@ -87,3 +88,25 @@ def set_param_values(
     return jax.tree_util.tree_map(
         replace, pytree, is_leaf=lambda obj: isinstance(obj, Param)
     )
+
+
+def de_fit(
+    candidate: Callable[[_T], _O],
+    cost: Callable[[_O], float],
+    /,
+    initial: _T,
+    *,
+    max_steps: int = 15,
+) -> _O:
+    params = get_params(initial)
+    x0 = jnp.array([p.value for p in params])
+    bounds = jnp.array([(p.min, p.max) for p in params])
+
+    opt = differential_evolution(
+        jax.jit(lambda x: cost(candidate(set_param_values(initial, x)))),
+        bounds=bounds,
+        x0=x0,
+        maxiter=max_steps,
+    )
+
+    return candidate(set_param_values(initial, opt.x))
