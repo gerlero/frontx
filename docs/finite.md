@@ -1,3 +1,3 @@
-# Finite domains
+# Problems in finite domains
 
 ## ::: frontx.finite
