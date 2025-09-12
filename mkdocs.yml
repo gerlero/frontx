@@ -25,7 +25,8 @@ plugins:
 
 nav:
     - 'index.md'
-    - 'solve.md'
+    - 'forward.md'
     - 'inverse.md'
+    - 'neural.md'
     - 'finite.md'
     - 'models.md'

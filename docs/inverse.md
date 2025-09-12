@@ -1,4 +1,4 @@
-# Inverse problems
+# Inverse problems and parameter estimation
 
 ## ::: frontx.InterpolatedSolution
 
@@ -8,4 +8,4 @@
 
 ## ::: frontx.Param
 
-## ::: frontx.neural
+## ::: frontx.fit
