@@ -119,6 +119,7 @@ def fit(  # noqa: PLR0913
     b: float,
     fit_D0: Literal["data", "sorptivity"] | None = "data",  # noqa: N803
     max_steps: int = 15,
+    workers: int = 1,
 ) -> ScaledSolution[Solution] | Solution:
     if fit_D0 == "sorptivity":
         S = sorptivity(o, theta, b=b, i=i)  # noqa: N806
@@ -148,4 +149,4 @@ def fit(  # noqa: PLR0913
             lambda: jnp.inf,
         )
 
-    return de_fit(candidate, cost, initial=D, max_steps=max_steps)
+    return de_fit(candidate, cost, initial=D, max_steps=max_steps, workers=workers)

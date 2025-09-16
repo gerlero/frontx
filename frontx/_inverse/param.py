@@ -1,8 +1,11 @@
 from collections.abc import Callable, Sequence
+from concurrent.futures import ThreadPoolExecutor
+import contextlib
 from typing import Any, TypeVar, overload
 
 import jax
 import jax.numpy as jnp
+from matplotlib.style import context
 import numpy as np
 import parametrix as pmx
 from scipy.optimize import differential_evolution
@@ -97,16 +100,26 @@ def de_fit(
     initial: _T,
     *,
     max_steps: int = 15,
+    workers: int = 1,
 ) -> _O:
     params = get_params(initial)
     x0 = jnp.array([p.value for p in params])
     bounds = jnp.array([(p.min, p.max) for p in params])
 
-    opt = differential_evolution(
-        jax.jit(lambda x: cost(candidate(set_param_values(initial, x)))),
-        bounds=bounds,
-        x0=x0,
-        maxiter=max_steps,
-    )
+    if workers == -1:
+        thread_pool = contextlib.nullcontext()
+    elif workers == 1:
+        thread_pool = ThreadPoolExecutor()
+    else:
+        thread_pool = ThreadPoolExecutor(workers)
+
+    with thread_pool as thread_pool:
+        opt = differential_evolution(
+            jax.jit(lambda x: cost(candidate(set_param_values(initial, x)))),
+            bounds=bounds,
+            maxiter=max_steps,
+            x0=x0,
+            workers=1 if thread_pool is None else thread_pool.map,
+        )
 
     return candidate(set_param_values(initial, opt.x))
