@@ -10,8 +10,8 @@ import optimistix as optx
 from frontx import RESULTS, Solution, solve
 from frontx._boltzmann import AbstractSolution, boltzmannmethod
 
-from . import sorptivity
 from .param import de_fit
+from .sorptivity import sorptivity
 
 T = TypeVar("T", bound=AbstractSolution)
 
