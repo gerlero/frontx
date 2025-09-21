@@ -7,6 +7,8 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
+from frontx._inverse.param import de_fit
+
 from . import RESULTS
 
 
@@ -93,3 +95,38 @@ def solve(  # noqa: PLR0913
         r1=r1,
         _sol=sol,
     )
+
+
+def fit(  # noqa: PLR0913
+    D: Callable[  # noqa: N803
+        [float | jax.Array | np.ndarray[Any, Any]],
+        float | jax.Array | np.ndarray[Any, Any],
+    ],
+    r1: float,
+    t1: float,
+    r: jax.Array | np.ndarray[Any, Any],
+    t: jax.Array | np.ndarray[Any, Any],
+    theta: jax.Array | np.ndarray[Any, Any],
+    /,
+    sigma: float | jax.Array | np.ndarray[Any, Any] = 1,
+    *,
+    i: jax.Array | np.ndarray[Any, Any],
+    b: float | None = None,
+    max_steps: int = 15,
+) -> Solution:
+    def candidate(
+        D: Callable[  # noqa: N803
+            [float | jax.Array | np.ndarray[Any, Any]],
+            float | jax.Array | np.ndarray[Any, Any],
+        ],
+    ) -> Solution:
+        return solve(D, r1, t1, i=i, b=b)
+
+    def cost(sol: Solution) -> float:
+        return jax.lax.cond(
+            sol.result == RESULTS.successful,
+            lambda: jnp.mean(((sol(r, t[:, jnp.newaxis]) - theta) / sigma) ** 2),
+            lambda: jnp.inf,
+        )
+
+    return de_fit(candidate, cost, initial=D, max_steps=max_steps)
