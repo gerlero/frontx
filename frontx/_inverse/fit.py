@@ -141,7 +141,7 @@ def fit(  # noqa: PLR0913
                 return sol
 
     def cost(sol: ScaledSolution[Solution] | Solution) -> float:
-        result = sol.original.result if isinstance(sol, ScaledSolution) else sol.result
+        result = sol.original.result if isinstance(sol, ScaledSolution) else sol.result  # ty: ignore[unresolved-attribute]
         return jax.lax.cond(
             result == RESULTS.successful,
             lambda: jnp.mean(((sol(o) - theta) / sigma) ** 2),
