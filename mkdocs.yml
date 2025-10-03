@@ -12,21 +12,39 @@ repo_name: gerlero/frontx
 strict: true
 
 plugins:
-    - search
-    - mkdocstrings:
-        handlers:
-            python:
-                options:
-                    show_if_no_docstring: true
-                    show_root_heading: true
-                    show_signature_annotations: true
-                    show_symbol_type_toc: true
-
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]            # raíz del repo, donde está el paquete frontx/
+          options:
+            docstring_style: google
+            show_if_no_docstring: true
+            show_root_heading: true
+            show_signature_annotations: true
+            show_symbol_type_toc: true
+            members_order: source
 
 nav:
     - 'index.md'
-    - 'forward.md'
-    - 'inverse.md'
-    - 'neural.md'
-    - 'finite.md'
-    - 'models.md'
+    - FRONTX:
+        - Neural: frontx/neural.md
+        - Models: frontx/models.md
+        - Finite: frontx/finite.md
+        - Examples:
+            - Validity: frontx/examples/validity.md
+            - neural:
+                - Exact: frontx/examples/neural/exact.md
+                - Grenoble Sand: frontx/examples/neural/grenoblesand.md
+                - Validity:
+                    - LETd: frontx/examples/neural/Validity/letd.md
+                    - VanGenuchten: frontx/examples/neural/Validity/vangenuchten.md
+    - TESTS: 
+        - Finite: tests/finite.md
+        - Inverse: tests/inverse.md
+        - Solve: tests/solve.md
+        - test_neural:
+          - Exact: tests/test_neural/exact.md
+          - GrenobleSand: tests/test_neural/grenoblesand.md
+          - test_validity:
+              - VanGenuchten: tests/test_neural/test_validity/vangenuchten.md
+              - LETd: tests/test_neural/test_validity/letd.md

@@ -1,3 +1,14 @@
+"""Physics-Informed Neural Network (PINN) utilities for Frontx.
+
+This module provides the public API to train a PINN and to evaluate the learned
+solution. The internal training network is implementation detail; consumers
+should use the :class:`Solution` class (immutable wrapper around the trained
+network) and the :func:`fit` routine to obtain it.
+
+The PINN models a scalar mapping ``o -> theta(o)`` constrained by data and a
+physics residual defined via a diffusivity-like callable ``D``.
+"""
+
 from collections.abc import Callable
 from typing import Any
 
@@ -71,6 +82,21 @@ class _PINN(eqx.Module):
 
 
 class Solution(AbstractSolution):
+    """Trained PINN solution wrapper.
+
+    This class exposes a callable solution ``theta(o)`` together with its
+    configuration. The underlying neural network and training logic are
+    internal; users typically obtain an instance via :func:`fit`.
+
+    The solution maps an observable/coordinate ``o`` to a scalar response
+    constrained to lie between ``i`` and ``b`` after a normalized transform.
+    The scaling parameter ``oi`` provides a characteristic range for ``o`` and
+    is used to normalize inputs during training and inference.
+
+    Attributes:
+        oi: Characteristic scale used to normalize inputs ``o`` (``x = o/oi``).
+    """
+
     oi: float
     _net: _PINN
     _i: float
@@ -84,6 +110,14 @@ class Solution(AbstractSolution):
         b: float,
         oi: float,
     ) -> None:
+        """Initialize a :class:`Solution`.
+
+        Args:
+            net: Trained internal PINN network (implementation detail).
+            i: Lower bound (baseline) of the response range.
+            b: Upper bound (saturation) of the response range.
+            oi: Characteristic input scale used for normalization.
+        """
         self._net = net
         self._i = i
         self._b = b
@@ -97,6 +131,13 @@ class Solution(AbstractSolution):
         [float | jax.Array | np.ndarray[Any, Any]],
         float | jax.Array | np.ndarray[Any, Any],
     ]:
+        """Return the diffusivity-like callable used in the physics term.
+
+        Returns:
+            A callable that accepts a scalar/array and returns a scalar/array
+            with the same broadcastable shape. It is the same function that was
+            passed to :func:`fit` as ``D``.
+        """
         return self._net.D
 
     @boltzmannmethod
@@ -104,6 +145,17 @@ class Solution(AbstractSolution):
         self,
         o: float | jax.Array | np.ndarray[Any, Any],
     ) -> float | jax.Array | np.ndarray[Any, Any]:
+        """Evaluate the trained solution at input ``o``.
+
+        The input is clipped to ``[0, oi]`` (after normalization) and the
+        network prediction is rescaled back to the original range ``[i, b]``.
+
+        Args:
+            o: Input coordinate(s) at which to evaluate the solution.
+
+        Returns:
+            The predicted response with the same shape broadcasting as ``o``.
+        """
         x = jnp.clip(o / self.oi, 0, 1)
 
         return self._i + (self._b - self._i) * self._net(x)
@@ -125,6 +177,33 @@ def fit(  # noqa: PLR0913
     oi: float | None = None,
     max_steps: int = 300_000,
 ) -> Solution:
+    """Train a PINN against data and physics, returning a callable solution.
+
+    This routine fits a physics-informed neural network using paired data
+    ``(o, theta)`` and a physics residual weighted by an annealed coefficient.
+    Inputs are normalized by ``oi`` and outputs are scaled to ``[i, b]``.
+    Training stops early when the physics loss target is reached or when
+    ``max_steps`` is exceeded.
+
+    Args:
+        D: Diffusivity-like callable used in the physics residual.
+        o: Input coordinates (1D array-like). Typically monotonically increasing.
+        theta: Target responses aligned with ``o``.
+        sigma: Optional observational noise (scalar or array-like) to weight the
+            data loss. If ``None``, unit weight is used.
+        i: Lower bound (baseline) of the response range.
+        b: Upper bound (saturation) of the response range.
+        oi: Optional input scale. If ``None``, it defaults to ``1.05 * o[-1]``.
+        max_steps: Maximum number of optimization steps.
+
+    Returns:
+        A :class:`Solution` object wrapping the trained network.
+
+    Raises:
+        RuntimeError: If the physics loss fails to converge to the target
+            threshold before ``max_steps`` (raised by ``eqx.error_if``).
+        AssertionError: If internal normalization parameters are missing.
+    """
     if oi is None:
         oi = o[-1] * 1.05  # ty: ignore [invalid-assignment]
 
