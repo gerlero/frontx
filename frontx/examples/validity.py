@@ -30,14 +30,14 @@ jax.config.update("jax_enable_x64", True)  # noqa: FBT003
 
 
 def run(x_grid: Sequence[float] | None = None) -> None:
-    """Genera la figura de comparación de modelos vs. datos.
+    """Generates the figure comparing models vs. experimental data.
 
     Args:
-        x_grid: Coordenadas para evaluar las soluciones (en m/√s). Si es
-            ``None``, se usa un linspace por defecto en ``[0, 2.5e-3]``.
+        x_grid: Coordinates at which to evaluate the solutions (in m/√s). If
+            ``None``, a default linspace in ``[0, 2.5e-3]`` is used.
 
     Returns:
-        None. Muestra una figura con Matplotlib.
+        None. Displays a figure using Matplotlib.
     """
     # Datos experimentales
     plt.scatter(o_exp, theta_exp, label="Experimental", color="gray")
