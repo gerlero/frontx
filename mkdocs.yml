@@ -15,7 +15,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: [.]            # raíz del repo, donde está el paquete frontx/
+          paths: [.]            # root of the repo, where the frontx/ package is located
           options:
             docstring_style: google
             show_if_no_docstring: true
