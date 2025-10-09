@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # ruff: noqa: E402
 
-"""Reproduce el caso del paper de validez de modelos de imbibición.
+"""Reproduces the case study from the paper on the validity of imbibition models.
 
-Genera la figura comparando cuatro modelos (Brooks–Corey, van Genuchten–Mualem,
-LETxs y LETd) contra datos experimentales de imbibición capilar en papel.
+Generates the figure comparing four models (Brooks–Corey, van Genuchten–Mualem,
+LETxs, and LETd) against experimental data of capillary imbibition in paper.
 
-Referencias:
+References:
     Gerlero, G. S., Valdez, A. R., Urteaga, R., & Kler, P. A. (2022).
     Validity of capillary imbibition models in paper-based microfluidic applications.
     Transport in Porous Media, 141(2), 359–378. https://doi.org/10.1007/s11242-021-01724-w
