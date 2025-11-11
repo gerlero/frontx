@@ -56,7 +56,7 @@ typing = [
 ]
 test = [
     "fronts>=1,<2",
-    "pytest>=8,<9",
+    "pytest>=8,<10",
     "pytest-cov"
 ]
 docs = [
