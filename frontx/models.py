@@ -142,7 +142,7 @@ class VanGenuchten(_RichardsModel):
     theta_range: tuple[float | Param, float | Param] = (0, 1)
 
     @property
-    def _n(self) -> float | jax.Array:
+    def _n(self) -> float | jax.Array | Param:
         if self.n is not None:
             return self.n
 
@@ -153,7 +153,7 @@ class VanGenuchten(_RichardsModel):
         return 1 / (1 - self.m)
 
     @property
-    def _m(self) -> float | jax.Array:
+    def _m(self) -> float | jax.Array | Param:
         if self.m is not None:
             return self.m
 

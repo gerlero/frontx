@@ -18,10 +18,7 @@ class Solution(eqx.Module):
         float | jax.Array | np.ndarray[Any, Any],
     ]
     r1: float
-    _sol: Callable[
-        [float | jax.Array | np.ndarray[Any, Any]],
-        float | jax.Array | np.ndarray[Any, Any],
-    ]
+    _sol: diffrax.Solution
 
     def __call__(
         self,
@@ -32,7 +29,7 @@ class Solution(eqx.Module):
         return jnp.interp(r, jnp.linspace(0, self.r1, theta.size), theta)
 
     @property
-    def t1(self) -> float:
+    def t1(self) -> float | jax.Array | np.ndarray[Any, Any]:
         return self._sol.t1
 
     @property
