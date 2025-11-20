@@ -3,7 +3,7 @@ from typing import Any
 import jax
 import jax.numpy as jnp
 import numpy as np
-from interpax import PchipInterpolator
+from interpax import PchipInterpolator, PPoly
 
 from frontx._boltzmann import AbstractSolution, boltzmannmethod
 
@@ -11,8 +11,8 @@ from frontx._boltzmann import AbstractSolution, boltzmannmethod
 class InterpolatedSolution(AbstractSolution):
     oi: float
     _sol: PchipInterpolator
-    _do_dtheta: PchipInterpolator
-    _Iodtheta: PchipInterpolator
+    _do_dtheta: PPoly
+    _Iodtheta: PPoly
     _c: float
 
     def __init__(
