@@ -122,7 +122,7 @@ class Solution(AbstractSolution):
         self._i = i
         self._b = b
         self.oi = oi
-        super().__init__()
+        super().__init__()  # ty: ignore[missing-argument]
 
     @property
     def D(  # noqa: N802
@@ -209,7 +209,7 @@ def fit(  # noqa: PLR0913
 
     assert oi is not None
 
-    net = _PINN(D)
+    net = _PINN(D)  # ty: ignore[missing-argument]
 
     x_data = o / oi
     y_data = (theta - i) / (b - i)
