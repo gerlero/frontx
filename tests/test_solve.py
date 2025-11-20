@@ -1,8 +1,28 @@
+"""Tests for the forward solver `frontx.solve`.
+
+Covers:
+1) Philip (1960) exact case with known D(theta).
+2) Quantitative comparison against the external reference implementation
+   (`fronts`) for several model families (LETd, LETxs, VanGenuchten, Brooks–Corey).
+3) Behavior on unsolvable problems.
+
+References:
+    Philip, J. R. (1960). General Method of Exact Solution of the
+    Concentration-Dependent Diffusion Equation.
+    Australian Journal of Physics, 13(1), 1–12. https://doi.org/10.1071/PH600001
+
+    Gerlero, G. S., Valdez, A. R., Urteaga, R., & Kler, P. A. (2022).
+    Validity of capillary imbibition models in paper-based microfluidic applications.
+    Transport in Porous Media, 141(2), 359–378. https://doi.org/10.1007/s11242-021-01724-w
+
+    Gerlero, G. S., Berli, C. L. A., & Kler, P. A. (2023).
+    Open-source high-performance software packages for direct and inverse solving of
+    horizontal capillary flow. Capillarity, 6(2), 31–40. https://doi.org/10.46690/capi.2023.02.02
+"""
+
 from typing import Any
 
 import equinox as eqx
-import fronts
-import fronts.D
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -10,19 +30,18 @@ import pytest
 from frontx import RESULTS, solve
 from frontx.models import BrooksAndCorey, LETd, LETxs, VanGenuchten
 
-jax.config.update("jax_enable_x64", True)  # noqa: FBT003
+jax.config.update("jax_enable_x64", True)  # better CPU precision
+
+# `fronts` is an external reference dependency.
+# If it's not installed, tests that require it are skipped.
+fronts = pytest.importorskip("fronts")
+fronts_D = pytest.importorskip("fronts.D")
 
 
 def test_exact() -> None:
-    """
-    Philip, J. R. (1960). General Method of Exact Solution of the
-    Concentration-Dependent Diffusion Equation.
-    Australian Journal of Physics, 13(1), 1-12. https://doi.org/10.1071/PH600001
-    """
+    """Philip (1960) exact case: the solution must be exp(-o)."""
     theta = solve(D=lambda theta: (1 - jnp.log(theta)) / 2, i=0, b=1)
-
     o = np.linspace(0, 20, 100)
-
     assert theta(o) == pytest.approx(np.exp(-o), abs=1e-3)
 
 
@@ -31,7 +50,7 @@ def test_exact() -> None:
     [
         (
             LETd,
-            fronts.D.letd,
+            fronts_D.letd,
             {
                 "L": 0.004569,
                 "E": 12930,
@@ -42,7 +61,7 @@ def test_exact() -> None:
         ),
         (
             LETd,
-            fronts.D.letd,
+            fronts_D.letd,
             {
                 "Dwt": 1.004e-3,
                 "L": 1.356,
@@ -53,7 +72,7 @@ def test_exact() -> None:
         ),
         (
             VanGenuchten,
-            fronts.D.van_genuchten,
+            fronts_D.van_genuchten,
             {
                 "n": 8.093,
                 "l": 2.344,
@@ -63,7 +82,7 @@ def test_exact() -> None:
         ),
         (
             VanGenuchten,
-            fronts.D.van_genuchten,
+            fronts_D.van_genuchten,
             {
                 "m": 0.8861,
                 "l": 2.331,
@@ -73,7 +92,7 @@ def test_exact() -> None:
         ),
         (
             BrooksAndCorey,
-            fronts.D.brooks_and_corey,
+            fronts_D.brooks_and_corey,
             {
                 "n": 0.2837,
                 "l": 4.795,
@@ -83,7 +102,7 @@ def test_exact() -> None:
         ),
         (
             LETxs,
-            fronts.D.letxs,
+            fronts_D.letxs,
             {
                 "Lw": 1.651,
                 "Ew": 230.5,
@@ -98,23 +117,20 @@ def test_exact() -> None:
     ],
 )
 def test_fronts_papers(Ds: tuple[Any, Any, dict[str, Any]]) -> None:  # noqa: N803
-    """
-    Gerlero, G. S., Valdez, A. R., Urteaga, R., & Kler, P. A. (2022).
-    Validity of capillary imbibition models in paper-based microfluidic applications.
-    Transport in Porous Media, 141(2), 359-378. https://doi.org/10.1007/s11242-021-01724-w
+    """Quantitative comparison with the external reference `fronts`.
 
-    Gerlero, G. S., Berli, C. L. A., & Kler, P. A. (2023).
-    Open-source high-performance software packages for direct and inverse solving of
-    horizontal capillary flow.
-    Capillarity, 6(2), 31-40. https://doi.org/10.46690/capi.2023.02.02
+    - Check that D, dD/dθ, and d²D/dθ² match pointwise with `fronts.D`.
+    - Compare θ(o) from `frontx.solve` vs `fronts.solve` under the same BCs and
+      domain, using an absolute tolerance of 5e-2.
     """
-    D, Df, kwargs = Ds  # noqa: N806
-    D = D(**kwargs)  # noqa: N806
-    Df = Df(**kwargs)  # noqa: N806
+    D_cls, Df_fn, kwargs = Ds
+    D = D_cls(**kwargs)
+    Df = Df_fn(**kwargs)
 
     b = 0.7 - 1e-7
     i = 0.025
 
+    # D and derivatives
     assert D(0.5) == pytest.approx(Df(0.5))
     assert D(i) == pytest.approx(Df(i))
 
@@ -124,19 +140,17 @@ def test_fronts_papers(Ds: tuple[Any, Any, dict[str, Any]]) -> None:  # noqa: N8
     assert jax.grad(jax.grad(D))(0.5) == pytest.approx(Df(0.5, 2)[2])
     assert jax.grad(jax.grad(D))(i) == pytest.approx(Df(i, 2)[2])
 
-    solf = fronts.solve(Df, b=b, i=i)
+    # Solutions
+    sol_ref = fronts.solve(Df, b=b, i=i)
     sol = solve(D, b=b, i=i)
 
-    o = np.linspace(0, solf.oi, 100)
-
-    assert sol(o) == pytest.approx(solf(o=o), abs=5e-2)
+    o = np.linspace(0, sol_ref.oi, 100)
+    assert sol(o) == pytest.approx(sol_ref(o=o), abs=5e-2)
 
 
 def test_unsolvable() -> None:
+    """The solver must raise or flag failure on infeasible problems."""
     with pytest.raises(eqx.EquinoxRuntimeError):
         solve(D=lambda theta: theta, i=-1, b=1)
 
-    assert (
-        solve(D=lambda theta: theta, i=-1, b=1, throw=False).result
-        != RESULTS.successful
-    )
+    assert solve(D=lambda theta: theta, i=-1, b=1, throw=False).result != RESULTS.successful

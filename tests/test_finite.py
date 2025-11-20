@@ -1,3 +1,16 @@
+"""Tests for the finite-difference solver (`frontx.finite`).
+
+This suite validates two core properties:
+
+1) Consistency vs. the reference solver (`frontx.solve`) for LET-family models.
+2) Mass conservation: the integrated uptake matches the sorptivity over time.
+
+References:
+    Gerlero, G. S., Valdez, A. R., Urteaga, R., & Kler, P. A. (2022).
+    Validity of capillary imbibition models in paper-based microfluidic applications.
+    Transport in Porous Media, 141(2), 359–378. https://doi.org/10.1007/s11242-021-01724-w
+"""
+
 from collections.abc import Callable
 from typing import Any
 
@@ -34,10 +47,16 @@ def test_validity_let(
         float | jax.Array | np.ndarray[Any, Any],
     ],
 ) -> None:
-    """
-    Gerlero, G. S., Valdez, A. R., Urteaga, R., & Kler, P. A. (2022).
-    Validity of capillary imbibition models in paper-based microfluidic applications.
-    Transport in Porous Media, 141(2), 359-378. https://doi.org/10.1007/s11242-021-01724-w
+    """Finite solver reproduces the reference solution for LET-type models.
+
+    The test compares the finite-difference solution
+    (:func:`frontx.finite.solve`) against the reference solver
+    (:func:`frontx.solve`) at a fixed time, using two representative
+    diffusivities (LETd, LETxs). Agreement is checked within an absolute
+    tolerance at all spatial points.
+
+    Asserts:
+        The maximum absolute difference between both solutions is below 2e-2.
     """
     b = 0.7 - 1e-7
     i = 0.025
@@ -53,10 +72,16 @@ def test_validity_let(
 
 
 def test_mass_conservation() -> None:
-    """
-    Gerlero, G. S., Valdez, A. R., Urteaga, R., & Kler, P. A. (2022).
-    Validity of capillary imbibition models in paper-based microfluidic applications.
-    Transport in Porous Media, 141(2), 359-378. https://doi.org/10.1007/s11242-021-01724-w
+    """Integrated uptake equals sorptivity over time (mass conservation).
+
+    The reference solution provides the sorptivity (total uptake). We then
+    evolve the finite solver from the reference profile at ``t=1`` and verify
+    that the spatial integral of ``theta(r, t) - i`` stays equal to the total
+    sorptivity for all times in a grid.
+
+    Asserts:
+        For each sampled time, the trapezoidal integral over ``r`` matches the
+        reference sorptivity within 1e-4 absolute tolerance.
     """
     D = LETd(L=0.004569, E=12930, T=1.505, Dwt=4.660e-4, theta_range=(0.019852, 0.7))  # noqa: N806
     b = 0.7 - 1e-7
