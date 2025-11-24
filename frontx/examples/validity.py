@@ -12,8 +12,6 @@ References:
     Transport in Porous Media, 141(2), 359–378. https://doi.org/10.1007/s11242-021-01724-w
 """
 
-from __future__ import annotations
-
 from typing import Sequence
 
 import jax

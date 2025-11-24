@@ -15,8 +15,6 @@ Run from CLI:
     python -m frontx.examples.letd
 """
 
-from __future__ import annotations
-
 from typing import Any
 
 import matplotlib.pyplot as plt
