@@ -15,8 +15,6 @@ Run from CLI:
     python -m frontx.examples.grenoblesand
 """
 
-from __future__ import annotations
-
 import jax
 import matplotlib.pyplot as plt
 import numpy as np

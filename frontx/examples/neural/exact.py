@@ -15,8 +15,6 @@ Run from CLI:
     python -m frontx.examples.exacti
 """
 
-from __future__ import annotations
-
 from typing import Any
 
 import jax
