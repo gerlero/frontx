@@ -101,7 +101,7 @@ class ScaledSolution(AbstractSolution, Generic[T]):
         return self.original.D(theta) * self.D0
 
     @property
-    def oi(self) -> float:
+    def oi(self) -> float | jax.Array:
         return self.original.oi * jnp.sqrt(self.D0)
 
 

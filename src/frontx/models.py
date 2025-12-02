@@ -87,7 +87,7 @@ class _RichardsModel(_MoistureDiffusivityModel):
     mu: eqx.AbstractVar[float | Param]
 
     @property
-    def _Ks(self) -> float | jax.Array:  # noqa: N802
+    def _Ks(self) -> float | Param | jax.Array:  # noqa: N802
         if self.Ks is None:
             if self.k is None:
                 return 1
