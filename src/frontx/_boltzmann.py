@@ -35,7 +35,7 @@ def ode(
     return term
 
 
-T = TypeVar("T")
+_Self = TypeVar("_Self")
 
 
 class _BoltzmannTransformed(Protocol):
@@ -54,26 +54,26 @@ class _BoltzmannTransformed(Protocol):
 
 def boltzmannmethod(
     meth: Callable[
-        [T, float | jax.Array | np.ndarray[Any, Any]],
+        [_Self, float | jax.Array | np.ndarray[Any, Any]],
         float | jax.Array | np.ndarray[Any, Any],
     ],
     /,
 ) -> _BoltzmannTransformed:
     @overload
     def boltzmann_wrapper(
-        self: T,
+        self: _Self,
         r: float | jax.Array | np.ndarray[Any, Any],
         t: float | jax.Array | np.ndarray[Any, Any],
     ) -> float | jax.Array | np.ndarray[Any, Any]: ...
 
     @overload
     def boltzmann_wrapper(
-        self: T, o: float | jax.Array | np.ndarray[Any, Any]
+        self: _Self, o: float | jax.Array | np.ndarray[Any, Any]
     ) -> float | jax.Array | np.ndarray[Any, Any]: ...
 
     @wraps(meth)
     def boltzmann_wrapper(
-        self: T,
+        self: _Self,
         *args: float | jax.Array | np.ndarray[Any, Any],
         **kwargs: float | jax.Array | np.ndarray[Any, Any],
     ) -> float | jax.Array | np.ndarray[Any, Any]:
@@ -95,7 +95,7 @@ def boltzmannmethod(
 
         return meth(self, o)
 
-    return boltzmann_wrapper
+    return boltzmann_wrapper  # ty: ignore[invalid-return-type]
 
 
 class AbstractSolution(eqx.Module):
