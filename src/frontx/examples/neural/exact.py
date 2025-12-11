@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# ruff: noqa: E402
 
 """ExactI: simple neural fit against a known reference curve.
 

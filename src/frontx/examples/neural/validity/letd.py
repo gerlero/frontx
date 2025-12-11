@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# ruff: noqa: E402
-
 """Fit LETd model with the neural PINN and validate with the forward solver.
 
 This example calibrates the empirical :class:`frontx.models.LETd` diffusivity
@@ -14,8 +12,6 @@ forward-solver check.
 Run from CLI:
     python -m frontx.examples.letd
 """
-
-from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -31,7 +27,7 @@ def run() -> None:
 
     Steps:
       1. Build an LETd model with trainable parameters (:class:`frontx.Param`).
-      2. Fit with :func:`frontx.neural.fit` using experimental ``(o, theta, σ)``.
+      2. Fit with :func:`frontx.neural.fit` using experimental ``(o, theta, sigma)``.
       3. Report reduced chi-squared.
       4. Re-solve with :func:`frontx.solve` using the fitted ``D`` to validate.
       5. Plot both predictions against the data.
@@ -43,7 +39,7 @@ def run() -> None:
     plt.scatter(o, theta, label="Experimental", color="gray")
 
     # LETd model with trainable parameters and bounds
-    D = LETd(
+    D = LETd(  # noqa: N806
         Dwt=frontx.Param(o[-1] ** 2, min=0.0),
         L=frontx.Param(),
         E=frontx.Param(min=0.0),

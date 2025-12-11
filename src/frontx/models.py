@@ -1,17 +1,4 @@
-"""Moisture diffusivity models (public API).
-
-This module exposes parametrized models to compute a moisture
-diffusivity-like function ``D(theta)`` used by the PINN solver.
-
-Public classes:
-    - LETd: Empirical LET model on effective saturation.
-    - BrooksAndCorey: Richards-based model with Brooks & Corey relations.
-    - VanGenuchten: Richards-based model with van Genuchten–Mualem relations.
-    - LETxs: Richards-based model combining LET-shaped kr and head.
-
-All classes are lightweight `equinox.Module`s and can be called like functions:
-``D = model(theta)``. Parameters may be floats or `Param` (trainable) objects.
-"""
+"""Moisture diffusivity models."""
 
 from abc import abstractmethod
 from typing import Any
@@ -149,7 +136,7 @@ class BrooksAndCorey(_RichardsModel):
     If both are provided, a ``ValueError`` is raised.
 
     Attributes:
-        n: Pore-size index (Brooks–Corey exponent).
+        n: Pore-size index (Brooks and Corey exponent).
         l: Mualem connectivity parameter (default 1).
         Ks: Saturated hydraulic conductivity (optional if ``k`` is set).
         k: Intrinsic permeability (mutually exclusive with ``Ks``).
@@ -188,7 +175,7 @@ class BrooksAndCorey(_RichardsModel):
 
 
 class VanGenuchten(_RichardsModel):
-    """Richards-based model using van Genuchten–Mualem relations.
+    """Richards-based model using van Genuchten-Mualem relations.
 
     You must set **either** ``n`` or ``m`` (the other is inferred through
     ``m = 1 - 1/n``). The model computes

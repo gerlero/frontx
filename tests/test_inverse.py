@@ -7,13 +7,17 @@ Covers:
 4) Properties of `ScaledSolution` (scaling, sorptivity, metadata).
 
 References:
+    Gerlero, G. S., Berli, C. L. A., & Kler, P. A. (2023).
+    Open-source high-performance software packages for direct and inverse solving of
+    horizontal capillary flow. Capillarity, 6(2), 31-40. https://doi.org/10.46690/capi.2023.02.02
+
     Philip, J. R. (1960). General Method of Exact Solution of the
     Concentration-Dependent Diffusion Equation.
-    Australian Journal of Physics, 13(1), 1–12. https://doi.org/10.1071/PH600001
+    Australian Journal of Physics, 13(1), 1-12. https://doi.org/10.1071/PH600001
 
     Gerlero, G. S., Valdez, A. R., Urteaga, R., & Kler, P. A. (2022).
     Validity of capillary imbibition models in paper-based microfluidic applications.
-    Transport in Porous Media, 141(2), 359–378. https://doi.org/10.1007/s11242-021-01724-w
+    Transport in Porous Media, 141(2), 359-378. https://doi.org/10.1007/s11242-021-01724-w
 """
 
 import frontx
