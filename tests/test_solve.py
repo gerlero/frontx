@@ -3,26 +3,28 @@
 Covers:
 1) Philip (1960) exact case with known D(theta).
 2) Quantitative comparison against the external reference implementation
-   (`fronts`) for several model families (LETd, LETxs, VanGenuchten, Brooks–Corey).
+   (`fronts`) for several model families (LETd, LETxs, Van Genuchten, Brooks and Corey).
 3) Behavior on unsolvable problems.
 
 References:
+    Gerlero, G. S., Berli, C. L. A., & Kler, P. A. (2023).
+    Open-source high-performance software packages for direct and inverse solving of
+    horizontal capillary flow. Capillarity, 6(2), 31-40. https://doi.org/10.46690/capi.2023.02.02
+
     Philip, J. R. (1960). General Method of Exact Solution of the
     Concentration-Dependent Diffusion Equation.
-    Australian Journal of Physics, 13(1), 1–12. https://doi.org/10.1071/PH600001
+    Australian Journal of Physics, 13(1), 1-12. https://doi.org/10.1071/PH600001
 
     Gerlero, G. S., Valdez, A. R., Urteaga, R., & Kler, P. A. (2022).
     Validity of capillary imbibition models in paper-based microfluidic applications.
-    Transport in Porous Media, 141(2), 359–378. https://doi.org/10.1007/s11242-021-01724-w
-
-    Gerlero, G. S., Berli, C. L. A., & Kler, P. A. (2023).
-    Open-source high-performance software packages for direct and inverse solving of
-    horizontal capillary flow. Capillarity, 6(2), 31–40. https://doi.org/10.46690/capi.2023.02.02
+    Transport in Porous Media, 141(2), 359-378. https://doi.org/10.1007/s11242-021-01724-w
 """
 
 from typing import Any
 
 import equinox as eqx
+import fronts
+import fronts.D
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -30,12 +32,7 @@ import pytest
 from frontx import RESULTS, solve
 from frontx.models import BrooksAndCorey, LETd, LETxs, VanGenuchten
 
-jax.config.update("jax_enable_x64", True)  # better CPU precision
-
-# `fronts` is an external reference dependency.
-# If it's not installed, tests that require it are skipped.
-fronts = pytest.importorskip("fronts")
-fronts_D = pytest.importorskip("fronts.D")
+jax.config.update("jax_enable_x64", True)  # noqa: FBT003
 
 
 def test_exact() -> None:
@@ -50,7 +47,7 @@ def test_exact() -> None:
     [
         (
             LETd,
-            fronts_D.letd,
+            fronts.D.letd,
             {
                 "L": 0.004569,
                 "E": 12930,
@@ -61,7 +58,7 @@ def test_exact() -> None:
         ),
         (
             LETd,
-            fronts_D.letd,
+            fronts.D.letd,
             {
                 "Dwt": 1.004e-3,
                 "L": 1.356,
@@ -72,7 +69,7 @@ def test_exact() -> None:
         ),
         (
             VanGenuchten,
-            fronts_D.van_genuchten,
+            fronts.D.van_genuchten,
             {
                 "n": 8.093,
                 "l": 2.344,
@@ -82,7 +79,7 @@ def test_exact() -> None:
         ),
         (
             VanGenuchten,
-            fronts_D.van_genuchten,
+            fronts.D.van_genuchten,
             {
                 "m": 0.8861,
                 "l": 2.331,
@@ -92,7 +89,7 @@ def test_exact() -> None:
         ),
         (
             BrooksAndCorey,
-            fronts_D.brooks_and_corey,
+            fronts.D.brooks_and_corey,
             {
                 "n": 0.2837,
                 "l": 4.795,
@@ -102,7 +99,7 @@ def test_exact() -> None:
         ),
         (
             LETxs,
-            fronts_D.letxs,
+            fronts.D.letxs,
             {
                 "Lw": 1.651,
                 "Ew": 230.5,
@@ -123,9 +120,9 @@ def test_fronts_papers(Ds: tuple[Any, Any, dict[str, Any]]) -> None:  # noqa: N8
     - Compare θ(o) from `frontx.solve` vs `fronts.solve` under the same BCs and
       domain, using an absolute tolerance of 5e-2.
     """
-    D_cls, Df_fn, kwargs = Ds
-    D = D_cls(**kwargs)
-    Df = Df_fn(**kwargs)
+    D_cls, Df_fn, kwargs = Ds  # noqa: N806
+    D = D_cls(**kwargs)  # noqa: N806
+    Df = Df_fn(**kwargs)  # noqa: N806
 
     b = 0.7 - 1e-7
     i = 0.025
@@ -153,4 +150,7 @@ def test_unsolvable() -> None:
     with pytest.raises(eqx.EquinoxRuntimeError):
         solve(D=lambda theta: theta, i=-1, b=1)
 
-    assert solve(D=lambda theta: theta, i=-1, b=1, throw=False).result != RESULTS.successful
+    assert (
+        solve(D=lambda theta: theta, i=-1, b=1, throw=False).result
+        != RESULTS.successful
+    )

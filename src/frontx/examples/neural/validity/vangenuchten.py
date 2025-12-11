@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# ruff: noqa: E402
 
-"""Fit Van Genuchten–Mualem model with the neural PINN and validate forward.
+"""Fit Van Genuchten model with the neural PINN and validate forward.
 
 This example calibrates :class:`frontx.models.VanGenuchten` against experimental
 data using :func:`frontx.neural.fit`, and then validates by calling
@@ -25,7 +24,7 @@ def run() -> None:
 
     Steps:
       1. Build a VanGenuchten model with trainable parameters (:class:`frontx.Param`).
-      2. Fit with :func:`frontx.neural.fit` using experimental ``(o, theta, σ)``.
+      2. Fit with :func:`frontx.neural.fit` using experimental ``(o, theta, sigma)``.
       3. Report reduced chi-squared.
       4. Re-solve with :func:`frontx.solve` using the fitted ``D`` to validate.
       5. Plot both predictions against the data.
@@ -36,8 +35,8 @@ def run() -> None:
     # Scatter of experimental data
     plt.scatter(o, theta, label="Experimental", color="gray")
 
-    # Van Genuchten–Mualem model (k given, alpha/m/l trainable, bounded theta_range)
-    D = VanGenuchten(
+    # Van Genuchten model (k given, alpha/m/l trainable, bounded theta_range)
+    D = VanGenuchten(  # noqa: N806
         k=9.8e-14,
         alpha=frontx.Param(min=0.0),
         m=frontx.Param(min=0.0, max=1.0),

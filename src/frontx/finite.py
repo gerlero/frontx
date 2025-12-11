@@ -2,7 +2,7 @@
 
 This module provides a small public API to (a) integrate a radial 1D diffusion
 model with a state-dependent diffusivity ``D(theta)``, and (b) fit that model
-to spatio–temporal data. Internally, integration is performed with Diffrax and
+to spatio-temporal data. Internally, integration is performed with Diffrax and
 a centered finite-difference stencil.
 
 Public API:
@@ -23,9 +23,6 @@ import numpy as np
 from frontx._inverse.param import de_fit
 
 from . import RESULTS
-
-# Export only the public API
-__all__ = ["Solution", "solve", "fit"]
 
 
 class Solution(eqx.Module):
@@ -71,7 +68,6 @@ class Solution(eqx.Module):
         return jnp.interp(r, jnp.linspace(0, self.r1, theta.size), theta)
 
     @property
-
     def t1(self) -> float | jax.Array | np.ndarray[Any, Any]:
         """Final integration time."""
         return self._sol.t1
@@ -185,7 +181,7 @@ def fit(  # noqa: PLR0913
     b: float | None = None,
     max_steps: int = 15,
 ) -> Solution:
-    """Fit the finite-difference model to space–time observations.
+    """Fit the finite-difference model to spatio-temporal observations.
 
     This routine searches over candidate models/parameters (through
     :func:`frontx._inverse.param.de_fit`) to minimize the mean squared error
@@ -214,6 +210,7 @@ def fit(  # noqa: PLR0913
             the simulation and cost evaluation only.
         - If an integration attempt is unsuccessful, its cost is ``+inf``.
     """
+
     def candidate(
         D: Callable[  # noqa: N803
             [float | jax.Array | np.ndarray[Any, Any]],
