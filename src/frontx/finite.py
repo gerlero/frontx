@@ -126,7 +126,7 @@ def solve(  # noqa: PLR0913
 
     @diffrax.ODETerm[jax.Array]
     def term(
-        _: float,
+        _: float | jax.Array | np.ndarray[Any, Any],
         theta: jax.Array,
         args: None,  # noqa: ARG001
     ) -> jax.Array:

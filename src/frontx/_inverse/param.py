@@ -81,7 +81,7 @@ def set_param_values(
     def replace(obj: Param | _O) -> Param | _O:
         nonlocal i
         if isinstance(obj, Param):
-            obj = Param(values[i], min=obj.min, max=obj.max)  # ty: ignore [invalid-argument-type]
+            obj = Param(values[i], min=obj.min, max=obj.max)
             i += 1
         return obj
 
