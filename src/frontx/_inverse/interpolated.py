@@ -9,11 +9,11 @@ from frontx._boltzmann import AbstractSolution, boltzmannmethod
 
 
 class InterpolatedSolution(AbstractSolution):
-    oi: float
+    oi: float | jax.Array
     _sol: PchipInterpolator
     _do_dtheta: PPoly
     _Iodtheta: PPoly
-    _c: float
+    _c: float | jax.Array
 
     def __init__(
         self,
@@ -21,8 +21,8 @@ class InterpolatedSolution(AbstractSolution):
         theta: jax.Array | np.ndarray[Any, Any],
         /,
         *,
-        b: float | None = None,
-        i: float | None = None,
+        b: float | jax.Array | None = None,
+        i: float | jax.Array | None = None,
     ) -> None:
         o = jnp.asarray(o)
         theta = jnp.asarray(theta)
@@ -37,9 +37,9 @@ class InterpolatedSolution(AbstractSolution):
             o = jnp.append(o, o[-1] + 1)
             theta = jnp.append(theta, i)
         else:
-            i = theta[-1]  # ty: ignore[invalid-assignment]
+            i = theta[-1]
 
-        self.oi: float = o[-1]
+        self.oi = o[-1]
 
         theta, indices = jnp.unique(theta, return_index=True)
         o = o[indices]

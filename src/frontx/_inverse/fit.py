@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Any, Generic, Literal, TypeVar
+from typing import Any, Literal
 
 import equinox as eqx
 import jax
@@ -13,17 +13,15 @@ from frontx._boltzmann import AbstractSolution, boltzmannmethod
 from .param import de_fit
 from .sorptivity import sorptivity
 
-T = TypeVar("T", bound=AbstractSolution)
 
-
-class ScaledSolution(AbstractSolution, Generic[T]):
-    original: T
+class ScaledSolution(AbstractSolution):
+    original: AbstractSolution
     D0: float | jax.Array
     result: RESULTS
 
     def __init__(
         self,
-        original: T,
+        original: AbstractSolution,
         /,
         D0: float | jax.Array,  # noqa: N803
         *,
@@ -34,7 +32,11 @@ class ScaledSolution(AbstractSolution, Generic[T]):
         self.result = _result
 
     @staticmethod
-    def with_sorptivity(original: T, S: float | jax.Array, /) -> "ScaledSolution[T]":  # noqa: N803
+    def with_sorptivity(
+        original: AbstractSolution,
+        S: float | jax.Array,  # noqa: N803
+        /,
+    ) -> "ScaledSolution":
         return ScaledSolution(
             original,
             D0=(S / original.sorptivity()) ** 2,
@@ -43,14 +45,14 @@ class ScaledSolution(AbstractSolution, Generic[T]):
     @eqx.filter_jit
     @staticmethod
     def fitting_data(
-        original: T,
+        original: AbstractSolution,
         o: jax.Array | np.ndarray[Any, Any],
         theta: jax.Array | np.ndarray[Any, Any],
         /,
         sigma: float | jax.Array | np.ndarray[Any, Any] = 1,
         *,
         throw: bool = True,
-    ) -> "ScaledSolution[T]":
+    ) -> "ScaledSolution":
         def residuals(
             D0: float | jax.Array,  # noqa: N803,
             args: None = None,  # noqa: ARG001
@@ -119,7 +121,7 @@ def fit(  # noqa: PLR0913
     b: float,
     fit_D0: Literal["data", "sorptivity"] | None = "data",  # noqa: N803
     max_steps: int = 15,
-) -> ScaledSolution[Solution] | Solution:
+) -> ScaledSolution | Solution:
     if fit_D0 == "sorptivity":
         S = sorptivity(o, theta, b=b, i=i)  # noqa: N806
 
@@ -128,7 +130,7 @@ def fit(  # noqa: PLR0913
             [float | jax.Array | np.ndarray[Any, Any]],
             float | jax.Array | np.ndarray[Any, Any],
         ],
-    ) -> ScaledSolution[Solution] | Solution:
+    ) -> ScaledSolution | Solution:
         sol = solve(D, i=i, b=b, throw=False)
         match fit_D0:
             case "data":
@@ -140,7 +142,7 @@ def fit(  # noqa: PLR0913
             case None:
                 return sol
 
-    def cost(sol: ScaledSolution[Solution] | Solution) -> float:
+    def cost(sol: ScaledSolution | Solution) -> float:
         result = sol.original.result if isinstance(sol, ScaledSolution) else sol.result  # ty: ignore[unresolved-attribute]
         return jax.lax.cond(
             result == RESULTS.successful,

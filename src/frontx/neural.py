@@ -41,7 +41,7 @@ class _PINN(eqx.Module):
     def __call__(
         self, x: float | jax.Array | np.ndarray[Any, Any]
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        return 2 * jax.nn.sigmoid(-x * jax.nn.softplus(vmap(self._net)(x)))
+        return 2 * jax.nn.sigmoid(-x * jax.nn.softplus(vmap(self._net)(x)))  # ty: ignore [no-matching-overload]
 
     def data_loss(
         self,
@@ -209,7 +209,7 @@ def fit(  # noqa: PLR0913
 
     assert oi is not None
 
-    net = _PINN(D)  # ty: ignore[missing-argument]
+    net = _PINN(D)
 
     x_data = o / oi
     y_data = (theta - i) / (b - i)
