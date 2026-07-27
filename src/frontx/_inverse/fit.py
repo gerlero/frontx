@@ -23,7 +23,7 @@ class ScaledSolution(AbstractSolution):
         self,
         original: AbstractSolution,
         /,
-        D0: float | jax.Array,  # noqa: N803
+        D0: float | jax.Array,
         *,
         _result: RESULTS = RESULTS.successful,
     ) -> None:
@@ -34,7 +34,7 @@ class ScaledSolution(AbstractSolution):
     @staticmethod
     def with_sorptivity(
         original: AbstractSolution,
-        S: float | jax.Array,  # noqa: N803
+        S: float | jax.Array,
         /,
     ) -> "ScaledSolution":
         return ScaledSolution(
@@ -54,8 +54,8 @@ class ScaledSolution(AbstractSolution):
         throw: bool = True,
     ) -> "ScaledSolution":
         def residuals(
-            D0: float | jax.Array,  # noqa: N803,
-            args: None = None,  # noqa: ARG001
+            D0: float | jax.Array,
+            args: None = None,
         ) -> jax.Array:
             scaled = ScaledSolution(original, D0)
             return (scaled(o) - theta) / sigma
@@ -77,7 +77,7 @@ class ScaledSolution(AbstractSolution):
             ),
         )
 
-        D0 = opt.value  # noqa: N806
+        D0 = opt.value
 
         return ScaledSolution(original, D0, _result=result)
 
@@ -95,7 +95,7 @@ class ScaledSolution(AbstractSolution):
     ) -> float | jax.Array | np.ndarray[Any, Any]:
         return self.original.d_do(o / jnp.sqrt(self.D0)) / jnp.sqrt(self.D0)
 
-    def D(  # noqa: N802
+    def D(
         self,
         theta: float | jax.Array | np.ndarray[Any, Any],
         /,
@@ -107,8 +107,8 @@ class ScaledSolution(AbstractSolution):
         return self.original.oi * jnp.sqrt(self.D0)
 
 
-def fit(  # noqa: PLR0913
-    D: Callable[  # noqa: N803
+def fit(
+    D: Callable[
         [float | jax.Array | np.ndarray[Any, Any]],
         float | jax.Array | np.ndarray[Any, Any],
     ],
@@ -119,14 +119,14 @@ def fit(  # noqa: PLR0913
     *,
     i: float,
     b: float,
-    fit_D0: Literal["data", "sorptivity"] | None = "data",  # noqa: N803
+    fit_D0: Literal["data", "sorptivity"] | None = "data",
     max_steps: int = 15,
 ) -> ScaledSolution | Solution:
     if fit_D0 == "sorptivity":
-        S = sorptivity(o, theta, b=b, i=i)  # noqa: N806
+        S = sorptivity(o, theta, b=b, i=i)
 
     def candidate(
-        D: Callable[  # noqa: N803
+        D: Callable[
             [float | jax.Array | np.ndarray[Any, Any]],
             float | jax.Array | np.ndarray[Any, Any],
         ],

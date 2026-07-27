@@ -56,12 +56,12 @@ class InterpolatedSolution(AbstractSolution):
     ) -> float | jax.Array | np.ndarray[Any, Any]:
         return self._sol(o)
 
-    def D(  # noqa: N802
+    def D(
         self,
         theta: float | jax.Array | np.ndarray[Any, Any],
         /,
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        Iodtheta = self._Iodtheta(theta) - self._c  # noqa: N806
+        Iodtheta = self._Iodtheta(theta) - self._c
         do_dtheta = self._do_dtheta(theta)
 
         return jnp.squeeze(-(do_dtheta * Iodtheta) / 2)
@@ -69,5 +69,5 @@ class InterpolatedSolution(AbstractSolution):
     def sorptivity(
         self, o: float | jax.Array | np.ndarray[Any, Any] = 0
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        Ithetado = self._sol.antiderivative()  # noqa: N806
+        Ithetado = self._sol.antiderivative()
         return (Ithetado(self.oi) - Ithetado(o)) - self.i * (self.oi - o)

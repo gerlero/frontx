@@ -14,7 +14,7 @@ from ._util import vmap
 class _MoistureDiffusivityModel(eqx.Module):
     theta_range: eqx.AbstractVar[tuple[float | Param, float | Param]]
 
-    def _Se(  # noqa: N802
+    def _Se(
         self,
         theta: float | jax.Array | np.ndarray[Any, Any],
         /,
@@ -62,7 +62,7 @@ class LETd(_MoistureDiffusivityModel):
     def __call__(
         self, theta: float | jax.Array | np.ndarray[Any, Any]
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        Se = (theta - self.theta_range[0]) / (self.theta_range[1] - self.theta_range[0])  # noqa: N806
+        Se = (theta - self.theta_range[0]) / (self.theta_range[1] - self.theta_range[0])
         return self.Dwt * Se**self.L / (Se**self.L + self.E * (1 - Se) ** self.T)
 
 
@@ -74,7 +74,7 @@ class _RichardsModel(_MoistureDiffusivityModel):
     mu: eqx.AbstractVar[float | Param]
 
     @property
-    def _Ks(self) -> float | Param | jax.Array:  # noqa: N802
+    def _Ks(self) -> float | Param | jax.Array:
         if self.Ks is None:
             if self.k is None:
                 return 1
@@ -92,7 +92,7 @@ class _RichardsModel(_MoistureDiffusivityModel):
     ) -> float | jax.Array | np.ndarray[Any, Any]:
         return self._K(theta) / self._C(theta)
 
-    def _C(  # noqa: N802
+    def _C(
         self,
         theta: float | jax.Array | np.ndarray[Any, Any],
         /,
@@ -115,7 +115,7 @@ class _RichardsModel(_MoistureDiffusivityModel):
     ) -> float | jax.Array | np.ndarray[Any, Any]:
         raise NotImplementedError
 
-    def _K(  # noqa: N802
+    def _K(
         self,
         theta: float | jax.Array | np.ndarray[Any, Any],
         /,
@@ -148,7 +148,7 @@ class BrooksAndCorey(_RichardsModel):
     """
 
     n: float | Param
-    l: float | Param = 1  # noqa: E741
+    l: float | Param = 1
     Ks: float | Param | None = None
     k: float | None = None
     g: float | Param = 9.81
@@ -162,7 +162,7 @@ class BrooksAndCorey(_RichardsModel):
         theta: float | jax.Array | np.ndarray[Any, Any],
         /,
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        Se = self._Se(theta)  # noqa: N806
+        Se = self._Se(theta)
         return -1 / (self.alpha * Se ** (1 / self.n))
 
     def _kr(
@@ -170,7 +170,7 @@ class BrooksAndCorey(_RichardsModel):
         theta: float | jax.Array | np.ndarray[Any, Any],
         /,
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        Se = self._Se(theta)  # noqa: N806
+        Se = self._Se(theta)
         return Se ** (2 / self.n + self.l + 2)
 
 
@@ -205,7 +205,7 @@ class VanGenuchten(_RichardsModel):
 
     n: float | Param | None = None
     m: float | Param | None = None
-    l: float | Param = 0.5  # noqa: E741
+    l: float | Param = 0.5
     Ks: float | Param | None = None
     k: float | Param | None = None
     g: float | Param = 9.81
@@ -241,7 +241,7 @@ class VanGenuchten(_RichardsModel):
         theta: float | jax.Array | np.ndarray[Any, Any],
         /,
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        Se = self._Se(theta)  # noqa: N806
+        Se = self._Se(theta)
         return -((1 / (Se ** (1 / self._m)) - 1) ** (1 / self._n)) / self.alpha
 
     def _kr(
@@ -249,7 +249,7 @@ class VanGenuchten(_RichardsModel):
         theta: float | jax.Array | np.ndarray[Any, Any],
         /,
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        Se = self._Se(theta)  # noqa: N806
+        Se = self._Se(theta)
         return Se**self.l * (1 - (1 - Se ** (1 / self._m)) ** self._m) ** 2
 
 
@@ -300,7 +300,7 @@ class LETxs(_RichardsModel):
         theta: float | jax.Array | np.ndarray[Any, Any],
         /,
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        Se = self._Se(theta)  # noqa: N806
+        Se = self._Se(theta)
         return Se**self.Lw / (Se**self.Lw + self.Ew * (1 - Se) ** self.Tw)
 
     def _h(
@@ -308,7 +308,7 @@ class LETxs(_RichardsModel):
         theta: float | jax.Array | np.ndarray[Any, Any],
         /,
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        Se = self._Se(theta)  # noqa: N806
+        Se = self._Se(theta)
         return (
             -((1 - Se) ** self.Ls / ((1 - Se) ** self.Ls + self.Es * Se**self.Ts))
             / self.alpha

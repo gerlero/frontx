@@ -125,7 +125,7 @@ class Solution(AbstractSolution):
         super().__init__()  # ty: ignore[missing-argument]
 
     @property
-    def D(  # noqa: N802
+    def D(
         self,
     ) -> Callable[
         [float | jax.Array | np.ndarray[Any, Any]],
@@ -162,8 +162,8 @@ class Solution(AbstractSolution):
 
 
 @eqx.filter_jit
-def fit(  # noqa: PLR0913
-    D: Callable[  # noqa: N803
+def fit(
+    D: Callable[
         [float | jax.Array | np.ndarray[Any, Any]],
         float | jax.Array | np.ndarray[Any, Any],
     ],
@@ -255,7 +255,7 @@ def fit(  # noqa: PLR0913
             jnp.max(jnp.abs(residuals)) - jnp.percentile(jnp.abs(residuals), 99)
         ) / (jnp.median(jnp.abs(jnp.abs(residuals) - jnp.median(jnp.abs(residuals)))))
         residual_cutoff = jax.lax.select(  # ty: ignore [invalid-assignment]
-            (step >= 50_000) & (residual_cutoff == jnp.inf) & (spike_score > 200),  # noqa: PLR2004
+            (step >= 50_000) & (residual_cutoff == jnp.inf) & (spike_score > 200),
             jnp.mean(jnp.abs(residuals)),
             residual_cutoff,
         )

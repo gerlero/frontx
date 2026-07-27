@@ -13,7 +13,7 @@ from ._util import vmap
 
 
 def ode(
-    D: Callable[  # noqa: N803
+    D: Callable[
         [float | jax.Array | np.ndarray[Any, Any]],
         float | jax.Array | np.ndarray[Any, Any],
     ],
@@ -22,11 +22,11 @@ def ode(
     def term(
         o: float | jax.Array | np.ndarray[Any, Any],
         y: jax.Array,
-        args: None,  # noqa: ARG001
+        args: None,
     ) -> jax.Array:
         theta, dtheta_do = y
 
-        D_, dD_dtheta = jax.value_and_grad(D)(theta)  # noqa: N806
+        D_, dD_dtheta = jax.value_and_grad(D)(theta)
 
         d2theta_do2 = -((o / 2 + dD_dtheta * dtheta_do) / D_) * dtheta_do
 
@@ -79,7 +79,7 @@ def boltzmannmethod(
     ) -> float | jax.Array | np.ndarray[Any, Any]:
         if len(args) == 1 and not kwargs:
             o = args[0]
-        elif len(args) == 2 and not kwargs:  # noqa: PLR2004
+        elif len(args) == 2 and not kwargs:
             r, t = args
             o = r / jnp.sqrt(t)
         elif not args and "o" in kwargs:

@@ -20,9 +20,10 @@ References:
     Transport in Porous Media, 141(2), 359-378. https://doi.org/10.1007/s11242-021-01724-w
 """
 
-import frontx
 import jax.numpy as jnp
 import pytest
+
+import frontx
 from frontx.models import LETd
 
 
@@ -64,7 +65,7 @@ def test_standalone_sorptivity() -> None:
 
 def test_scaled_solution_sorptivity() -> None:
     """`ScaledSolution` preserves sorptivity and metadata after rescaling."""
-    D = LETd(L=0.004569, E=12930, T=1.505, Dwt=4.660e-4, theta_range=(0.019852, 0.7))  # noqa: N806
+    D = LETd(L=0.004569, E=12930, T=1.505, Dwt=4.660e-4, theta_range=(0.019852, 0.7))
     b = 0.7 - 1e-7
     i = 0.025
 
@@ -75,14 +76,14 @@ def test_scaled_solution_sorptivity() -> None:
     scaled = frontx.ScaledSolution.with_sorptivity(unscaled, sol.sorptivity())
 
     assert scaled.sorptivity() == pytest.approx(sol.sorptivity())
-    assert scaled.D0 == pytest.approx(D.Dwt)  # noqa: SIM300
+    assert scaled.D0 == pytest.approx(D.Dwt)
     assert scaled.oi == pytest.approx(sol.oi)
     assert scaled.result == frontx.RESULTS.successful
 
 
 def test_scaled_solution_data() -> None:
     """`ScaledSolution.fitting_data` preserves curve, derivative, and sorptivity."""
-    D = LETd(L=0.004569, E=12930, T=1.505, Dwt=4.660e-4, theta_range=(0.019852, 0.7))  # noqa: N806
+    D = LETd(L=0.004569, E=12930, T=1.505, Dwt=4.660e-4, theta_range=(0.019852, 0.7))
     b = 0.7 - 1e-7
     i = 0.025
 
@@ -95,7 +96,7 @@ def test_scaled_solution_data() -> None:
 
     assert scaled(o) == pytest.approx(sol(o), abs=1e-6)
     assert scaled.d_do(o) == pytest.approx(sol.d_do(o), abs=1e-2)
-    assert scaled.D0 == pytest.approx(D.Dwt)  # noqa: SIM300
+    assert scaled.D0 == pytest.approx(D.Dwt)
     assert scaled.sorptivity() == pytest.approx(sol.sorptivity())
     assert scaled.oi == pytest.approx(sol.oi)
     assert scaled.result == frontx.RESULTS.successful

@@ -15,8 +15,8 @@ class Param(pmx.Param[float]):
     def __init__(
         self,
         value: float | jax.Array | None = None,
-        min: float | None = None,  # noqa: A002
-        max: float | None = None,  # noqa: A002
+        min: float | None = None,
+        max: float | None = None,
     ) -> None:
         if min is not None and max is not None:
             if value is None:

@@ -22,7 +22,7 @@ from frontx.examples.data.validity import theta as theta_exp
 from frontx.examples.data.validity import theta_i, theta_s
 from frontx.models import BrooksAndCorey, LETd, LETxs, VanGenuchten
 
-jax.config.update("jax_enable_x64", True)  # noqa: FBT003
+jax.config.update("jax_enable_x64", True)
 
 
 def run(x_grid: Sequence[float] | None = None) -> None:

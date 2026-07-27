@@ -22,23 +22,23 @@ import frontx
 import frontx.neural
 from frontx.models import VanGenuchten
 
-jax.config.update("jax_enable_x64", True)  # noqa: FBT003
+jax.config.update("jax_enable_x64", True)
 
 
 def run() -> None:
     """Generate synthetic data and fit a neural PINN; plot the comparison."""
     # Known parameters (units as in the original setup)
-    Ks = 15.37  # cm/h  # noqa: N806
+    Ks = 15.37  # cm/h
     alpha = 0.0432  # 1/cm
     m = 0.5096
     theta_s = 0.312
 
     # Reference model and forward solution (nearly saturated boundary)
-    D_ref = VanGenuchten(Ks=Ks, alpha=alpha, m=m, theta_range=(0.0, theta_s))  # noqa: N806
+    D_ref = VanGenuchten(Ks=Ks, alpha=alpha, m=m, theta_range=(0.0, theta_s))
     ref = frontx.solve(D_ref, i=0, b=theta_s - 1e-7)
 
     # Trainable model (subset of parameters to infer from synthetic data)
-    D_train = VanGenuchten(  # noqa: N806
+    D_train = VanGenuchten(
         Ks=frontx.Param(min=0.0),
         m=frontx.Param(min=0.0, max=1.0),
         theta_range=(0.0, theta_s),
@@ -54,7 +54,7 @@ def run() -> None:
         b=theta_s - 1e-7,
     )
 
-    print(f"Ks={sol.D.Ks.value}, m={sol.D.m.value}")  # noqa: T201
+    print(f"Ks={sol.D.Ks.value}, m={sol.D.m.value}")
 
     # Display
     o_display = np.linspace(0, ref.oi * 1.5, 500)

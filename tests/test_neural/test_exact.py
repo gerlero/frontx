@@ -10,20 +10,21 @@ We check that the neural fit reproduces the reference curve.
 
 from typing import Any
 
-import frontx
-import frontx.neural
 import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
 
-jax.config.update("jax_enable_x64", True)  # noqa: FBT003
+import frontx
+import frontx.neural
+
+jax.config.update("jax_enable_x64", True)
 
 
 def test_exact() -> None:
     """The neural fit reproduces the exact exp(-o) solution within tolerance."""
 
-    def D(theta: float | jax.Array | np.ndarray[Any, Any]) -> float | jax.Array:  # noqa: N802
+    def D(theta: float | jax.Array | np.ndarray[Any, Any]) -> float | jax.Array:
         return (1 - jnp.log(theta)) / 2
 
     o = np.linspace(0, 20, 100)
