@@ -39,7 +39,7 @@ def run() -> None:
     plt.scatter(o, theta, label="Experimental", color="gray")
 
     # LETd model with trainable parameters and bounds
-    D = LETd(  # noqa: N806
+    D = LETd(
         Dwt=frontx.Param(o[-1] ** 2, min=0.0),
         L=frontx.Param(),
         E=frontx.Param(min=0.0),
@@ -59,7 +59,7 @@ def run() -> None:
 
     # Goodness of fit (reduced chi-squared)
     rchisq = np.sum((theta - sol(o)) ** 2 / std**2) / (len(o) - 5)
-    print("Reduced chi-squared:", rchisq)  # noqa: T201
+    print("Reduced chi-squared:", rchisq)
 
     # Smooth display grid
     o_display = np.linspace(0, o[-1] * 1.05, 1_000)
@@ -75,7 +75,7 @@ def run() -> None:
     )
 
     rchisq_check = np.sum((theta - sol2(o)) ** 2 / std**2) / (len(o) - 5)
-    print("Reduced chi-squared (check):", rchisq_check)  # noqa: T201
+    print("Reduced chi-squared (check):", rchisq_check)
 
     plt.plot(o_display, sol2(o=o_display), label="frontx", color="blue")
 

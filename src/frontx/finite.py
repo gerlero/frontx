@@ -79,8 +79,8 @@ class Solution(eqx.Module):
 
 
 @eqx.filter_jit
-def solve(  # noqa: PLR0913
-    D: Callable[  # noqa: N803
+def solve(
+    D: Callable[
         [float | jax.Array | np.ndarray[Any, Any]],
         float | jax.Array | np.ndarray[Any, Any],
     ],
@@ -128,12 +128,12 @@ def solve(  # noqa: PLR0913
     def term(
         _: float | jax.Array | np.ndarray[Any, Any],
         theta: jax.Array,
-        args: None,  # noqa: ARG001
+        args: None,
     ) -> jax.Array:
-        D_ = jnp.asarray(D(theta))  # noqa: N806
+        D_ = jnp.asarray(D(theta))
         if D_.ndim == 0:
-            D_ = jnp.repeat(D_, theta.size)  # noqa: N806
-        Df = (D_[1:] + D_[:-1]) / 2  # noqa: N806
+            D_ = jnp.repeat(D_, theta.size)
+        Df = (D_[1:] + D_[:-1]) / 2
 
         return jnp.concatenate(
             [
@@ -164,8 +164,8 @@ def solve(  # noqa: PLR0913
     )
 
 
-def fit(  # noqa: PLR0913
-    D: Callable[  # noqa: N803
+def fit(
+    D: Callable[
         [float | jax.Array | np.ndarray[Any, Any]],
         float | jax.Array | np.ndarray[Any, Any],
     ],
@@ -212,7 +212,7 @@ def fit(  # noqa: PLR0913
     """
 
     def candidate(
-        D: Callable[  # noqa: N803
+        D: Callable[
             [float | jax.Array | np.ndarray[Any, Any]],
             float | jax.Array | np.ndarray[Any, Any],
         ],

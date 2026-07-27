@@ -70,13 +70,5 @@ dev = [
     {include-group = "docs"},
 ]
 
-[tool.ruff.lint]
-extend-select = ["ALL"]
-extend-ignore = [
-    "COM812",
-    "D",
-    "S101",
-]
-
 [tool.ruff.lint.pydocstyle]
 convention = "google"

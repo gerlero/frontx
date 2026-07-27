@@ -24,10 +24,10 @@ import numpy as np
 import frontx
 import frontx.neural
 
-jax.config.update("jax_enable_x64", True)  # noqa: FBT003
+jax.config.update("jax_enable_x64", True)
 
 
-def D(theta: float | jax.Array | np.ndarray[Any, Any]) -> float | jax.Array:  # noqa: N802
+def D(theta: float | jax.Array | np.ndarray[Any, Any]) -> float | jax.Array:
     """Custom diffusivity used by the PINN.
 
     Args:

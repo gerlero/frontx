@@ -9,15 +9,16 @@ This suite validates two core properties:
 from collections.abc import Callable
 from typing import Any
 
-import frontx
-import frontx.finite
 import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
+import frontx
+import frontx.finite
 from frontx.models import LETd, LETxs
 
-jax.config.update("jax_enable_x64", True)  # noqa: FBT003
+jax.config.update("jax_enable_x64", True)
 
 
 @pytest.mark.parametrize(
@@ -37,7 +38,7 @@ jax.config.update("jax_enable_x64", True)  # noqa: FBT003
     ],
 )
 def test_validity_let(
-    D: Callable[  # noqa: N803
+    D: Callable[
         [float | jax.Array | np.ndarray[Any, Any]],
         float | jax.Array | np.ndarray[Any, Any],
     ],
@@ -78,7 +79,7 @@ def test_mass_conservation() -> None:
         For each sampled time, the trapezoidal integral over ``r`` matches the
         reference sorptivity within 1e-4 absolute tolerance.
     """
-    D = LETd(L=0.004569, E=12930, T=1.505, Dwt=4.660e-4, theta_range=(0.019852, 0.7))  # noqa: N806
+    D = LETd(L=0.004569, E=12930, T=1.505, Dwt=4.660e-4, theta_range=(0.019852, 0.7))
     b = 0.7 - 1e-7
     i = 0.025
 

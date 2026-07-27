@@ -29,10 +29,11 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from frontx import RESULTS, solve
 from frontx.models import BrooksAndCorey, LETd, LETxs, VanGenuchten
 
-jax.config.update("jax_enable_x64", True)  # noqa: FBT003
+jax.config.update("jax_enable_x64", True)
 
 
 def test_exact() -> None:
@@ -113,16 +114,16 @@ def test_exact() -> None:
         ),
     ],
 )
-def test_fronts_papers(Ds: tuple[Any, Any, dict[str, Any]]) -> None:  # noqa: N803
+def test_fronts_papers(Ds: tuple[Any, Any, dict[str, Any]]) -> None:
     """Quantitative comparison with the external reference `fronts`.
 
     - Check that D, dD/dθ, and d²D/dθ² match pointwise with `fronts.D`.
     - Compare θ(o) from `frontx.solve` vs `fronts.solve` under the same BCs and
       domain, using an absolute tolerance of 5e-2.
     """
-    D_cls, Df_fn, kwargs = Ds  # noqa: N806
-    D = D_cls(**kwargs)  # noqa: N806
-    Df = Df_fn(**kwargs)  # noqa: N806
+    D_cls, Df_fn, kwargs = Ds
+    D = D_cls(**kwargs)
+    Df = Df_fn(**kwargs)
 
     b = 0.7 - 1e-7
     i = 0.025

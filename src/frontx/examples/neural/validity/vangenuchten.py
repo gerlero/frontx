@@ -36,7 +36,7 @@ def run() -> None:
     plt.scatter(o, theta, label="Experimental", color="gray")
 
     # Van Genuchten model (k given, alpha/m/l trainable, bounded theta_range)
-    D = VanGenuchten(  # noqa: N806
+    D = VanGenuchten(
         k=9.8e-14,
         alpha=frontx.Param(min=0.0),
         m=frontx.Param(min=0.0, max=1.0),
@@ -56,7 +56,7 @@ def run() -> None:
 
     # Goodness of fit (reduced chi-squared)
     rchisq = np.sum((theta - sol(o)) ** 2 / std**2) / (len(o) - 4)
-    print("Reduced chi-squared:", rchisq)  # noqa: T201
+    print("Reduced chi-squared:", rchisq)
 
     # Smooth display grid
     o_display = np.linspace(0, o[-1] * 1.05, 1_000)
@@ -72,7 +72,7 @@ def run() -> None:
     )
 
     rchisq_check = np.sum((theta - sol2(o)) ** 2 / std**2) / (len(o) - 4)
-    print("Reduced chi-squared (check):", rchisq_check)  # noqa: T201
+    print("Reduced chi-squared (check):", rchisq_check)
 
     plt.plot(o_display, sol2(o=o_display), label="frontx", color="blue")
 

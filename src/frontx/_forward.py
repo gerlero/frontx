@@ -58,8 +58,8 @@ class Solution(AbstractSolution):
 
 
 @eqx.filter_jit
-def solve(  # noqa: PLR0913
-    D: Callable[  # noqa: N803
+def solve(
+    D: Callable[
         [float | jax.Array | np.ndarray[Any, Any]],
         float | jax.Array | np.ndarray[Any, Any],
     ],
@@ -74,12 +74,12 @@ def solve(  # noqa: PLR0913
     direction = jnp.sign(i - b)
 
     @diffrax.Event
-    def event(t: float, y: jax.Array, args: object, **kwargs: object) -> jax.Array:  # noqa: ARG001
+    def event(t: float, y: jax.Array, args: object, **kwargs: object) -> jax.Array:
         return (direction * y[1] <= 0) | (direction * y[0] > direction * (i - itol))
 
     def shoot(
         d_dob: float | jax.Array,
-        args: None,  # noqa: ARG001
+        args: None,
     ) -> tuple[jax.Array, diffrax.Solution]:
         sol = diffrax.diffeqsolve(
             term,
