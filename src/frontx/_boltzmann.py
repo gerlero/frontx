@@ -77,21 +77,18 @@ def boltzmannmethod(
         *args: float | jax.Array | np.ndarray[Any, Any],
         **kwargs: float | jax.Array | np.ndarray[Any, Any],
     ) -> float | jax.Array | np.ndarray[Any, Any]:
-        if len(args) == 1 and not kwargs:
-            o = args[0]
-        elif len(args) == 2 and not kwargs:
-            r, t = args
-            o = r / jnp.sqrt(t)
-        elif not args and "o" in kwargs:
-            o = kwargs["o"]
-        elif not args and "r" in kwargs and "t" in kwargs:
-            r = kwargs["r"]
-            t = kwargs["t"]
-            o = r / jnp.sqrt(t)
-        else:
-            meth_name = getattr(meth, "__name__", "method")
-            msg = f"{meth_name} takes (r, t) or (o,) as arguments"
-            raise TypeError(msg)
+        match args, kwargs:
+            case (o,), {} if not kwargs:
+                pass
+            case (r, t), {} if not kwargs:
+                o = r / jnp.sqrt(t)
+            case (), {"o": o} if len(kwargs) == 1:
+                pass
+            case (), {"r": r, "t": t} if len(kwargs) == 2:
+                o = r / jnp.sqrt(t)
+            case _:
+                msg = f"{getattr(meth, '__name__', 'method')} takes either (r, t) or (o,) as arguments"
+                raise TypeError(msg)
 
         return meth(self, o)
 
