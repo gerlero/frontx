@@ -188,11 +188,11 @@ def fit(
     t1: float | jax.Array,
     r: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     t: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
-    theta: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    theta: jax.Array | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
     /,
     sigma: float
     | jax.Array
-    | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]] = 1,
+    | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]] = 1,
     *,
     i: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     b: float | jax.Array | None = None,
