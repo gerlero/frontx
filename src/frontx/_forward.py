@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from typing import Any
 
 import diffrax
 import equinox as eqx
@@ -18,41 +17,49 @@ class Solution(AbstractSolution):
     _sol: diffrax.Solution
     result: RESULTS
     D: Callable[
-        [float | jax.Array | np.ndarray[Any, Any]],
-        float | jax.Array | np.ndarray[Any, Any],
+        [
+            float
+            | jax.Array
+            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+        ],
+        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     ]
 
     @boltzmannmethod
     def __call__(
         self,
-        o: float | jax.Array | np.ndarray[Any, Any],
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
-        return vmap(self._sol.evaluate)(jnp.clip(o, 0, self.oi))[..., 0]
+        o: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
+        return vmap(self._sol.evaluate)(jnp.clip(o, 0, self.oi))[..., 0]  # ty: ignore[not-subscriptable]
 
     @boltzmannmethod
     def d_do(
         self,
-        o: float | jax.Array | np.ndarray[Any, Any],
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
-        return vmap(self._sol.evaluate)(jnp.clip(o, 0, self.oi))[..., 1]
+        o: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
+        return vmap(self._sol.evaluate)(jnp.clip(o, 0, self.oi))[..., 1]  # ty: ignore[not-subscriptable]
 
     @property
-    def oi(self) -> float:
+    def oi(self) -> jax.Array:
         assert self._sol.ts is not None
         return self._sol.ts[-1]
 
     @property
-    def i(self) -> float:
+    def i(self) -> jax.Array:
         assert self._sol.ys is not None
         return self._sol.ys[-1, 0]
 
     @property
-    def b(self) -> float:
+    def b(self) -> jax.Array:
         assert self._sol.ys is not None
         return self._sol.ys[0, 0]
 
     @property
-    def d_dob(self) -> float:
+    def d_dob(self) -> jax.Array:
         assert self._sol.ys is not None
         return self._sol.ys[0, 1]
 
@@ -60,12 +67,16 @@ class Solution(AbstractSolution):
 @eqx.filter_jit
 def solve(
     D: Callable[
-        [float | jax.Array | np.ndarray[Any, Any]],
-        float | jax.Array | np.ndarray[Any, Any],
+        [
+            float
+            | jax.Array
+            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+        ],
+        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     ],
     *,
-    b: float,
-    i: float,
+    b: float | jax.Array,
+    i: float | jax.Array,
     itol: float = 1e-3,
     max_steps: int = 100,
     throw: bool = True,
@@ -103,7 +114,7 @@ def solve(
 
     root: optx.Solution = optx.root_find(
         shoot,
-        solver=optx.Bisection(rtol=jnp.inf, atol=itol, expand_if_necessary=True),  # ty: ignore[missing-argument]
+        solver=optx.Bisection(rtol=jnp.inf, atol=itol, expand_if_necessary=True),
         y0=0,
         max_steps=max_steps,
         has_aux=True,

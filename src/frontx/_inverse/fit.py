@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Any, Literal
+from typing import Literal
 
 import equinox as eqx
 import jax
@@ -46,10 +46,12 @@ class ScaledSolution(AbstractSolution):
     @staticmethod
     def fitting_data(
         original: AbstractSolution,
-        o: jax.Array | np.ndarray[Any, Any],
-        theta: jax.Array | np.ndarray[Any, Any],
+        o: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+        theta: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-        sigma: float | jax.Array | np.ndarray[Any, Any] = 1,
+        sigma: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]] = 1,
         *,
         throw: bool = True,
     ) -> "ScaledSolution":
@@ -84,51 +86,69 @@ class ScaledSolution(AbstractSolution):
     @boltzmannmethod
     def __call__(
         self,
-        o: float | jax.Array | np.ndarray[Any, Any],
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+        o: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> jax.Array:
         return self.original(o / jnp.sqrt(self.D0))
 
     @boltzmannmethod
     def d_do(
         self,
-        o: float | jax.Array | np.ndarray[Any, Any],
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+        o: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> jax.Array:
         return self.original.d_do(o / jnp.sqrt(self.D0)) / jnp.sqrt(self.D0)
 
     def D(
         self,
-        theta: float | jax.Array | np.ndarray[Any, Any],
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         return self.original.D(theta) * self.D0
 
     @property
-    def oi(self) -> float | jax.Array:
+    def oi(self) -> jax.Array:
         return self.original.oi * jnp.sqrt(self.D0)
 
 
 def fit(
     D: Callable[
-        [float | jax.Array | np.ndarray[Any, Any]],
-        float | jax.Array | np.ndarray[Any, Any],
+        [
+            float
+            | jax.Array
+            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+        ],
+        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     ],
-    o: jax.Array | np.ndarray[Any, Any],
-    theta: jax.Array | np.ndarray[Any, Any],
+    o: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    theta: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     /,
-    sigma: float | jax.Array | np.ndarray[Any, Any] = 1,
+    sigma: float
+    | jax.Array
+    | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]] = 1,
     *,
-    i: float,
-    b: float,
+    i: float | jax.Array,
+    b: float | jax.Array,
     fit_D0: Literal["data", "sorptivity"] | None = "data",
-    max_steps: int = 15,
+    max_steps: int | jax.Array = 15,
 ) -> ScaledSolution | Solution:
     if fit_D0 == "sorptivity":
         S = sorptivity(o, theta, b=b, i=i)
 
     def candidate(
         D: Callable[
-            [float | jax.Array | np.ndarray[Any, Any]],
-            float | jax.Array | np.ndarray[Any, Any],
+            [
+                float
+                | jax.Array
+                | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+            ],
+            float
+            | jax.Array
+            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         ],
     ) -> ScaledSolution | Solution:
         sol = solve(D, i=i, b=b, throw=False)

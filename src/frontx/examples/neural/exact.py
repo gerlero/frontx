@@ -14,8 +14,6 @@ Run from CLI:
     python -m frontx.examples.exacti
 """
 
-from typing import Any
-
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
@@ -27,7 +25,11 @@ import frontx.neural
 jax.config.update("jax_enable_x64", True)
 
 
-def D(theta: float | jax.Array | np.ndarray[Any, Any]) -> float | jax.Array:
+def D(
+    theta: float
+    | jax.Array
+    | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+) -> float | jax.Array:
     """Custom diffusivity used by the PINN.
 
     Args:
