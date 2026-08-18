@@ -132,11 +132,11 @@ class AbstractSolution(eqx.Module):
             [
                 float
                 | jax.Array
-                | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+                | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]
             ],
             float
             | jax.Array
-            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+            | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
         ]
     ]
     oi: eqx.AbstractVar[float]
