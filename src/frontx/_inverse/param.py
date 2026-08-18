@@ -100,7 +100,7 @@ def de_fit(
     /,
     initial: _T,
     *,
-    max_steps: int | jax.Array = 15,
+    max_steps: int = 15,
 ) -> _O:
     params = get_params(initial)
     x0 = jnp.array([p.value for p in params])
