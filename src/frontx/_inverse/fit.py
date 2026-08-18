@@ -134,7 +134,7 @@ def fit(
     i: float | jax.Array,
     b: float | jax.Array,
     fit_D0: Literal["data", "sorptivity"] | None = "data",
-    max_steps: int | jax.Array = 15,
+    max_steps: int = 15,
 ) -> ScaledSolution | Solution:
     if fit_D0 == "sorptivity":
         S = sorptivity(o, theta, b=b, i=i)
