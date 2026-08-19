@@ -10,6 +10,7 @@ physics residual defined via a diffusivity-like callable ``D``.
 """
 
 from collections.abc import Callable
+from typing import cast
 
 import equinox as eqx
 import jax
@@ -147,9 +148,9 @@ class Solution(AbstractSolution):
         [
             float
             | jax.Array
-            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+            | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]
         ],
-        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+        float | jax.Array | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
     ]:
         """Return the diffusivity-like callable used in the physics term.
 
@@ -158,7 +159,19 @@ class Solution(AbstractSolution):
             with the same broadcastable shape. It is the same function that was
             passed to :func:`fit` as ``D``.
         """
-        return self._net.D
+        return cast(
+            Callable[
+                [
+                    float
+                    | jax.Array
+                    | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]
+                ],
+                float
+                | jax.Array
+                | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
+            ],
+            self._net.D,
+        )
 
     @boltzmannmethod
     def __call__(

@@ -60,7 +60,7 @@ class InterpolatedSolution(AbstractSolution):
         self,
         theta: float
         | jax.Array
-        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+        | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
         /,
     ) -> jax.Array:
         Iodtheta = self._Iodtheta(theta) - self._c

@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from typing import cast
 
 import diffrax
 import equinox as eqx
@@ -12,18 +13,28 @@ from ._util import vmap
 
 RESULTS = diffrax.RESULTS
 
+_Diffusivity = Callable[
+    [
+        float
+        | jax.Array
+        | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]
+    ],
+    float | jax.Array | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
+]
+_DiffusivityInput = _Diffusivity | Callable[
+    [
+        float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+    ],
+    float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+]
+
 
 class Solution(AbstractSolution):
     _sol: diffrax.Solution
     result: RESULTS
-    D: Callable[
-        [
-            float
-            | jax.Array
-            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
-        ],
-        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
-    ]
+    D: _Diffusivity
 
     @boltzmannmethod
     def __call__(
@@ -66,14 +77,7 @@ class Solution(AbstractSolution):
 
 @eqx.filter_jit
 def solve(
-    D: Callable[
-        [
-            float
-            | jax.Array
-            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
-        ],
-        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
-    ],
+    D: _DiffusivityInput,
     *,
     b: float | jax.Array,
     i: float | jax.Array,
@@ -81,7 +85,7 @@ def solve(
     max_steps: int = 100,
     throw: bool = True,
 ) -> Solution:
-    term = ode(D)
+    term = ode(cast(_Diffusivity, D))
     direction = jnp.sign(i - b)
 
     @diffrax.Event
@@ -123,11 +127,11 @@ def solve(
     )
 
     return Solution(
-        root.aux,
-        RESULTS.where(
+        _sol=root.aux,
+        result=RESULTS.where(
             root.result == optx.RESULTS.successful,
             RESULTS.successful,
             RESULTS.max_steps_reached,
         ),
-        D,  # ty: ignore[invalid-argument-type]
+        D=cast(_Diffusivity, D),
     )  # ty: ignore[missing-argument]

@@ -196,7 +196,7 @@ def fit(
     *,
     i: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     b: float | jax.Array | None = None,
-    max_steps: int | jax.Array = 15,
+    max_steps: int = 15,
 ) -> Solution:
     """Fit the finite-difference model to spatio-temporal observations.
 
