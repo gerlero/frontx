@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from collections.abc import Callable
 from functools import wraps
-from typing import Any, Protocol, TypeVar, overload
+from typing import Protocol, TypeVar, overload
 
 import diffrax
 import equinox as eqx
@@ -14,13 +14,19 @@ from ._util import vmap
 
 def ode(
     D: Callable[
-        [float | jax.Array | np.ndarray[Any, Any]],
-        float | jax.Array | np.ndarray[Any, Any],
+        [
+            float
+            | jax.Array
+            | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]
+        ],
+        float
+        | jax.Array
+        | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
     ],
 ) -> diffrax.ODETerm[jax.Array]:
-    @diffrax.ODETerm[jax.Array]
+    @diffrax.ODETerm[jax.Array]  # ty: ignore[invalid-argument-type]
     def term(
-        o: float | jax.Array | np.ndarray[Any, Any],
+        o: jax.Array,
         y: jax.Array,
         args: None,
     ) -> jax.Array:
@@ -42,41 +48,68 @@ class _BoltzmannTransformed(Protocol):
     @overload
     def __call__(
         self,
-        r: float | jax.Array | np.ndarray[Any, Any],
-        t: float | jax.Array | np.ndarray[Any, Any],
-    ) -> float | jax.Array | np.ndarray[Any, Any]: ...
+        r: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+        t: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> jax.Array: ...
 
     @overload
     def __call__(
-        self, o: float | jax.Array | np.ndarray[Any, Any]
-    ) -> float | jax.Array | np.ndarray[Any, Any]: ...
+        self,
+        o: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> jax.Array: ...
 
 
 def boltzmannmethod(
     meth: Callable[
-        [_Self, float | jax.Array | np.ndarray[Any, Any]],
-        float | jax.Array | np.ndarray[Any, Any],
+        [
+            _Self,
+            float
+            | jax.Array
+            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+        ],
+        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     ],
     /,
 ) -> _BoltzmannTransformed:
     @overload
     def boltzmann_wrapper(
         self: _Self,
-        r: float | jax.Array | np.ndarray[Any, Any],
-        t: float | jax.Array | np.ndarray[Any, Any],
-    ) -> float | jax.Array | np.ndarray[Any, Any]: ...
+        r: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+        t: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> (
+        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+    ): ...
 
     @overload
     def boltzmann_wrapper(
-        self: _Self, o: float | jax.Array | np.ndarray[Any, Any]
-    ) -> float | jax.Array | np.ndarray[Any, Any]: ...
+        self: _Self,
+        o: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> (
+        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+    ): ...
 
     @wraps(meth)
     def boltzmann_wrapper(
         self: _Self,
-        *args: float | jax.Array | np.ndarray[Any, Any],
-        **kwargs: float | jax.Array | np.ndarray[Any, Any],
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+        *args: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+        **kwargs: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         match args, kwargs:
             case (o,), {} if not kwargs:
                 pass
@@ -98,61 +131,86 @@ def boltzmannmethod(
 class AbstractSolution(eqx.Module):
     D: eqx.AbstractVar[
         Callable[
-            [float | jax.Array | np.ndarray[Any, Any]],
-            float | jax.Array | np.ndarray[Any, Any],
+            [
+                float
+                | jax.Array
+                | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]
+            ],
+            float
+            | jax.Array
+            | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
         ]
     ]
     oi: eqx.AbstractVar[float]
 
     @property
-    def b(self) -> float | jax.Array | np.ndarray[Any, Any]:
+    def b(self) -> jax.Array:
         return self(0.0)
 
     @property
-    def d_dob(self) -> float | jax.Array | np.ndarray[Any, Any]:
+    def d_dob(self) -> jax.Array:
         return self.d_do(0.0)
 
     @property
-    def i(self) -> float | jax.Array | np.ndarray[Any, Any]:
+    def i(self) -> jax.Array:
         return self(self.oi)
 
     @abstractmethod
     @boltzmannmethod
     def __call__(
         self,
-        o: float | jax.Array | np.ndarray[Any, Any],
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+        o: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         raise NotImplementedError
 
     @boltzmannmethod
     def d_do(
         self,
-        o: float | jax.Array | np.ndarray[Any, Any],
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+        o: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         return vmap(jax.grad(self))(o)
 
     def d_dr(
         self,
-        r: float | jax.Array | np.ndarray[Any, Any],
-        t: float | jax.Array | np.ndarray[Any, Any],
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+        r: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+        t: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> jax.Array:
         return self.d_do(r, t) / jnp.sqrt(t)
 
     def d_dt(
         self,
-        r: float | jax.Array | np.ndarray[Any, Any],
-        t: float | jax.Array | np.ndarray[Any, Any],
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+        r: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+        t: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> jax.Array:
         return -r / (jnp.sqrt(t) * 2 * t) * self.d_do(r, t)
 
     def flux(
         self,
-        r: float | jax.Array | np.ndarray[Any, Any],
-        t: float | jax.Array | np.ndarray[Any, Any],
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
-        return -self.D(self(r, t)) * self.d_dr(r, t)
+        r: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+        t: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> jax.Array:
+        return -self.D(self(r, t)) * self.d_dr(r, t)  # ty: ignore[invalid-return-type]
 
     def sorptivity(
-        self, o: float | jax.Array | np.ndarray[Any, Any] = 0.0
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
-        return -2 * self.D(self(o)) * self.d_do(o)
+        self,
+        o: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]] = 0.0,
+    ) -> jax.Array:
+        return -2 * self.D(self(o)) * self.d_do(o)  # ty: ignore[invalid-return-type]

@@ -7,7 +7,6 @@ This suite validates two core properties:
 """
 
 from collections.abc import Callable
-from typing import Any
 
 import jax
 import jax.numpy as jnp
@@ -39,8 +38,12 @@ jax.config.update("jax_enable_x64", True)
 )
 def test_validity_let(
     D: Callable[
-        [float | jax.Array | np.ndarray[Any, Any]],
-        float | jax.Array | np.ndarray[Any, Any],
+        [
+            float
+            | jax.Array
+            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+        ],
+        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     ],
 ) -> None:
     """Finite solver reproduces the reference solution for LET-type models.

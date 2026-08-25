@@ -10,7 +10,7 @@ physics residual defined via a diffusivity-like callable ``D``.
 """
 
 from collections.abc import Callable
-from typing import Any
+from typing import cast
 
 import equinox as eqx
 import jax
@@ -24,8 +24,12 @@ from ._util import vmap
 
 class _PINN(eqx.Module):
     D: Callable[
-        [float | jax.Array | np.ndarray[Any, Any]],
-        float | jax.Array | np.ndarray[Any, Any],
+        [
+            float
+            | jax.Array
+            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+        ],
+        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     ]
     _net: eqx.nn.MLP = eqx.field(
         default_factory=lambda: eqx.nn.MLP(
@@ -39,20 +43,27 @@ class _PINN(eqx.Module):
     )
 
     def __call__(
-        self, x: float | jax.Array | np.ndarray[Any, Any]
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
-        return 2 * jax.nn.sigmoid(-x * jax.nn.softplus(vmap(self._net)(x)))  # ty: ignore [no-matching-overload]
+        self,
+        x: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> jax.Array:
+        return 2 * jax.nn.sigmoid(-x * jax.nn.softplus(vmap(self._net)(x)))  # ty: ignore[invalid-argument-type]
 
     def data_loss(
         self,
-        x_data: jax.Array | np.ndarray[Any, Any],
-        y_data: jax.Array | np.ndarray[Any, Any],
+        x_data: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+        y_data: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-        y_sigma: float | jax.Array | np.ndarray[Any, Any] = 1,
+        y_sigma: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]] = 1,
     ) -> jax.Array:
         return jnp.mean(((self(x_data) - y_data) / (y_sigma)) ** 2)
 
-    def physics_residuals(self, /, *, i: float, b: float, oi: float) -> jax.Array:
+    def physics_residuals(
+        self, /, *, i: float | jax.Array, b: float | jax.Array, oi: float | jax.Array
+    ) -> jax.Array:
         x = jnp.linspace(0, 1, 501)[1:]
 
         lhs = -x / 2 * vmap(jax.grad(self))(x)
@@ -68,7 +79,13 @@ class _PINN(eqx.Module):
         return lhs - rhs
 
     def physics_loss(
-        self, /, *, i: float, b: float, oi: float, residual_cutoff: float = jnp.inf
+        self,
+        /,
+        *,
+        i: float | jax.Array,
+        b: float | jax.Array,
+        oi: float | jax.Array,
+        residual_cutoff: float | jax.Array = jnp.inf,
     ) -> jax.Array:
         residuals = self.physics_residuals(i=i, b=b, oi=oi)
 
@@ -97,18 +114,18 @@ class Solution(AbstractSolution):
         oi: Characteristic scale used to normalize inputs ``o`` (``x = o/oi``).
     """
 
-    oi: float
+    oi: float | jax.Array
     _net: _PINN
-    _i: float
-    _b: float
+    _i: float | jax.Array
+    _b: float | jax.Array
 
     def __init__(
         self,
         net: _PINN,
         *,
-        i: float,
-        b: float,
-        oi: float,
+        i: float | jax.Array,
+        b: float | jax.Array,
+        oi: float | jax.Array,
     ) -> None:
         """Initialize a :class:`Solution`.
 
@@ -128,8 +145,14 @@ class Solution(AbstractSolution):
     def D(
         self,
     ) -> Callable[
-        [float | jax.Array | np.ndarray[Any, Any]],
-        float | jax.Array | np.ndarray[Any, Any],
+        [
+            float
+            | jax.Array
+            | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]
+        ],
+        float
+        | jax.Array
+        | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
     ]:
         """Return the diffusivity-like callable used in the physics term.
 
@@ -138,13 +161,27 @@ class Solution(AbstractSolution):
             with the same broadcastable shape. It is the same function that was
             passed to :func:`fit` as ``D``.
         """
-        return self._net.D
+        return cast(
+            Callable[
+                [
+                    float
+                    | jax.Array
+                    | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]
+                ],
+                float
+                | jax.Array
+                | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
+            ],
+            self._net.D,
+        )
 
     @boltzmannmethod
     def __call__(
         self,
-        o: float | jax.Array | np.ndarray[Any, Any],
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+        o: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> jax.Array:
         """Evaluate the trained solution at input ``o``.
 
         The input is clipped to ``[0, oi]`` (after normalization) and the
@@ -164,18 +201,25 @@ class Solution(AbstractSolution):
 @eqx.filter_jit
 def fit(
     D: Callable[
-        [float | jax.Array | np.ndarray[Any, Any]],
-        float | jax.Array | np.ndarray[Any, Any],
+        [
+            float
+            | jax.Array
+            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+        ],
+        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     ],
-    o: jax.Array | np.ndarray[Any, Any],
-    theta: jax.Array | np.ndarray[Any, Any],
+    o: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    theta: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     /,
-    sigma: float | jax.Array | np.ndarray[Any, Any] | None = None,
+    sigma: float
+    | jax.Array
+    | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+    | None = None,
     *,
-    i: float,
-    b: float,
-    oi: float | None = None,
-    max_steps: int = 300_000,
+    i: float | jax.Array,
+    b: float | jax.Array,
+    oi: float | jax.Array | None = None,
+    max_steps: int | jax.Array = 300_000,
 ) -> Solution:
     """Train a PINN against data and physics, returning a callable solution.
 
@@ -205,7 +249,7 @@ def fit(
         AssertionError: If internal normalization parameters are missing.
     """
     if oi is None:
-        oi = o[-1] * 1.05  # ty: ignore [invalid-assignment]
+        oi = o[-1] * 1.05
 
     assert oi is not None
 
@@ -215,7 +259,7 @@ def fit(
     y_data = (theta - i) / (b - i)
     y_sigma = sigma / (b - i) if sigma is not None else 1
 
-    initial_data_loss = net.data_loss(x_data, y_data, y_sigma=y_sigma)
+    initial_data_loss = net.data_loss(x_data, y_data, y_sigma=y_sigma)  # ty: ignore[invalid-argument-type]
 
     trainable_net, static_net = eqx.partition(net, eqx.is_array)
 
@@ -225,7 +269,10 @@ def fit(
     opt_state = optim.init(trainable_net)
 
     def loss(
-        trainable_net: _PINN, *, step: int, residual_cutoff: float = jnp.inf
+        trainable_net: _PINN,
+        *,
+        step: int | jax.Array,
+        residual_cutoff: float | jax.Array = jnp.inf,
     ) -> jax.Array:
         net = eqx.combine(trainable_net, static_net)
 
@@ -234,7 +281,7 @@ def fit(
             i=i, b=b, oi=oi, residual_cutoff=residual_cutoff
         )
 
-        data_loss = net.data_loss(x_data, y_data, y_sigma=y_sigma)
+        data_loss = net.data_loss(x_data, y_data, y_sigma=y_sigma)  # ty: ignore[invalid-argument-type]
 
         lambda_ = initial_data_loss * 10 ** (-2 + step / 100_000)
 
@@ -243,10 +290,10 @@ def fit(
     def train_step(
         trainable_net: _PINN,
         opt_state: optax.OptState,
-        step: int,
-        physics_loss: float,
-        residual_cutoff: float,
-    ) -> tuple[_PINN, optax.OptState, int, float, float]:
+        step: jax.Array,
+        physics_loss: jax.Array,
+        residual_cutoff: jax.Array,
+    ) -> tuple[_PINN, optax.OptState, jax.Array, jax.Array, jax.Array]:
         net = eqx.combine(trainable_net, static_net)
 
         assert oi is not None
@@ -254,13 +301,13 @@ def fit(
         spike_score = (
             jnp.max(jnp.abs(residuals)) - jnp.percentile(jnp.abs(residuals), 99)
         ) / (jnp.median(jnp.abs(jnp.abs(residuals) - jnp.median(jnp.abs(residuals)))))
-        residual_cutoff = jax.lax.select(  # ty: ignore [invalid-assignment]
+        residual_cutoff = jax.lax.select(
             (step >= 50_000) & (residual_cutoff == jnp.inf) & (spike_score > 200),
             jnp.mean(jnp.abs(residuals)),
             residual_cutoff,
         )
 
-        physics_loss = net.physics_loss(  # ty: ignore [invalid-assignment]
+        physics_loss = net.physics_loss(
             i=i, b=b, oi=oi, residual_cutoff=residual_cutoff
         )
 

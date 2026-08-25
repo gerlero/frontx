@@ -12,7 +12,6 @@ Public API:
 """
 
 from collections.abc import Callable
-from typing import Any
 
 import diffrax
 import equinox as eqx
@@ -39,17 +38,25 @@ class Solution(eqx.Module):
     """
 
     D: Callable[
-        [float | jax.Array | np.ndarray[Any, Any]],
-        float | jax.Array | np.ndarray[Any, Any],
+        [
+            float
+            | jax.Array
+            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+        ],
+        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     ]
-    r1: float
+    r1: float | jax.Array
     _sol: diffrax.Solution
 
     def __call__(
         self,
-        r: float | jax.Array | np.ndarray[Any, Any],
-        t: float | jax.Array | np.ndarray[Any, Any],
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+        r: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+        t: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> jax.Array:
         """Evaluate the simulated field at coordinates ``(r, t)``.
 
         Dense time output is queried from the solver and linearly interpolated
@@ -68,9 +75,9 @@ class Solution(eqx.Module):
         return jnp.interp(r, jnp.linspace(0, self.r1, theta.size), theta)
 
     @property
-    def t1(self) -> float | jax.Array | np.ndarray[Any, Any]:
+    def t1(self) -> float | jax.Array:
         """Final integration time."""
-        return self._sol.t1
+        return self._sol.t1  # ty: ignore[invalid-return-type]
 
     @property
     def result(self) -> RESULTS:
@@ -81,15 +88,19 @@ class Solution(eqx.Module):
 @eqx.filter_jit
 def solve(
     D: Callable[
-        [float | jax.Array | np.ndarray[Any, Any]],
-        float | jax.Array | np.ndarray[Any, Any],
+        [
+            float
+            | jax.Array
+            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+        ],
+        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     ],
-    r1: float,
-    t1: float,
+    r1: float | jax.Array,
+    t1: float | jax.Array,
     *,
-    i: jax.Array | np.ndarray[Any, Any],
-    b: float | None = None,
-    throw: bool = True,
+    i: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    b: float | jax.Array | None = None,
+    throw: bool | jax.Array = True,
 ) -> Solution:
     """Integrate the finite-difference diffusion model.
 
@@ -126,8 +137,8 @@ def solve(
 
     @diffrax.ODETerm[jax.Array]
     def term(
-        _: float | jax.Array | np.ndarray[Any, Any],
-        theta: jax.Array,
+        _: object,
+        theta: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         args: None,
     ) -> jax.Array:
         D_ = jnp.asarray(D(theta))
@@ -166,19 +177,25 @@ def solve(
 
 def fit(
     D: Callable[
-        [float | jax.Array | np.ndarray[Any, Any]],
-        float | jax.Array | np.ndarray[Any, Any],
+        [
+            float
+            | jax.Array
+            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+        ],
+        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     ],
-    r1: float,
-    t1: float,
-    r: jax.Array | np.ndarray[Any, Any],
-    t: jax.Array | np.ndarray[Any, Any],
-    theta: jax.Array | np.ndarray[Any, Any],
+    r1: float | jax.Array,
+    t1: float | jax.Array,
+    r: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    t: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    theta: jax.Array | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
     /,
-    sigma: float | jax.Array | np.ndarray[Any, Any] = 1,
+    sigma: float
+    | jax.Array
+    | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]] = 1,
     *,
-    i: jax.Array | np.ndarray[Any, Any],
-    b: float | None = None,
+    i: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    b: float | jax.Array | None = None,
     max_steps: int = 15,
 ) -> Solution:
     """Fit the finite-difference model to spatio-temporal observations.
@@ -213,13 +230,19 @@ def fit(
 
     def candidate(
         D: Callable[
-            [float | jax.Array | np.ndarray[Any, Any]],
-            float | jax.Array | np.ndarray[Any, Any],
+            [
+                float
+                | jax.Array
+                | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+            ],
+            float
+            | jax.Array
+            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         ],
     ) -> Solution:
         return solve(D, r1, t1, i=i, b=b)
 
-    def cost(sol: Solution) -> float:
+    def cost(sol: Solution) -> jax.Array:
         return jax.lax.cond(
             sol.result == RESULTS.successful,
             lambda: jnp.mean(((sol(r, t[:, jnp.newaxis]) - theta) / sigma) ** 2),

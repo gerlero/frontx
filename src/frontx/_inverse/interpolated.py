@@ -1,5 +1,3 @@
-from typing import Any
-
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -17,8 +15,8 @@ class InterpolatedSolution(AbstractSolution):
 
     def __init__(
         self,
-        o: jax.Array | np.ndarray[Any, Any],
-        theta: jax.Array | np.ndarray[Any, Any],
+        o: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+        theta: jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
         *,
         b: float | jax.Array | None = None,
@@ -52,22 +50,29 @@ class InterpolatedSolution(AbstractSolution):
     @boltzmannmethod
     def __call__(
         self,
-        o: float | jax.Array | np.ndarray[Any, Any],
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+        o: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ) -> jax.Array:
         return self._sol(o)
 
     def D(
         self,
-        theta: float | jax.Array | np.ndarray[Any, Any],
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+    ) -> jax.Array:
         Iodtheta = self._Iodtheta(theta) - self._c
         do_dtheta = self._do_dtheta(theta)
 
         return jnp.squeeze(-(do_dtheta * Iodtheta) / 2)
 
     def sorptivity(
-        self, o: float | jax.Array | np.ndarray[Any, Any] = 0
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+        self,
+        o: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]] = 0.0,
+    ) -> jax.Array:
         Ithetado = self._sol.antiderivative()
         return (Ithetado(self.oi) - Ithetado(o)) - self.i * (self.oi - o)

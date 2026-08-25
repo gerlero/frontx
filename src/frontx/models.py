@@ -1,7 +1,6 @@
 """Moisture diffusivity models."""
 
 from abc import abstractmethod
-from typing import Any
 
 import equinox as eqx
 import jax
@@ -16,9 +15,11 @@ class _MoistureDiffusivityModel(eqx.Module):
 
     def _Se(
         self,
-        theta: float | jax.Array | np.ndarray[Any, Any],
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         return (theta - self.theta_range[0]) / (
             self.theta_range[1] - self.theta_range[0]
         )
@@ -26,9 +27,11 @@ class _MoistureDiffusivityModel(eqx.Module):
     @abstractmethod
     def __call__(
         self,
-        theta: float | jax.Array | np.ndarray[Any, Any],
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         raise NotImplementedError
 
 
@@ -53,28 +56,32 @@ class LETd(_MoistureDiffusivityModel):
         theta_range: Tuple ``(theta_r, theta_s)`` used to compute ``Se``.
     """
 
-    L: float | Param
-    E: float | Param
-    T: float | Param
+    L: float | Param  # ty: ignore[dataclass-field-order]
+    E: float | Param  # ty: ignore[dataclass-field-order]
+    T: float | Param  # ty: ignore[dataclass-field-order]
     Dwt: float | Param = 1
     theta_range: tuple[float | Param, float | Param] = (0, 1)
 
     def __call__(
-        self, theta: float | jax.Array | np.ndarray[Any, Any]
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+        self,
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+        /,
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         Se = (theta - self.theta_range[0]) / (self.theta_range[1] - self.theta_range[0])
         return self.Dwt * Se**self.L / (Se**self.L + self.E * (1 - Se) ** self.T)
 
 
 class _RichardsModel(_MoistureDiffusivityModel):
-    Ks: eqx.AbstractVar[float | Param | None]
-    k: eqx.AbstractVar[float | Param | None]
-    g: eqx.AbstractVar[float | Param]
-    rho: eqx.AbstractVar[float | Param]
-    mu: eqx.AbstractVar[float | Param]
+    Ks: eqx.AbstractVar[float | jax.Array | Param | None]
+    k: eqx.AbstractVar[float | jax.Array | Param | None]
+    g: eqx.AbstractVar[float | jax.Array | Param]
+    rho: eqx.AbstractVar[float | jax.Array | Param]
+    mu: eqx.AbstractVar[float | jax.Array | Param]
 
     @property
-    def _Ks(self) -> float | Param | jax.Array:
+    def _Ks(self) -> float | jax.Array | Param:
         if self.Ks is None:
             if self.k is None:
                 return 1
@@ -87,39 +94,49 @@ class _RichardsModel(_MoistureDiffusivityModel):
 
     def __call__(
         self,
-        theta: float | jax.Array | np.ndarray[Any, Any],
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
-        return self._K(theta) / self._C(theta)
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
+        return self._K(theta) / self._C(theta)  # ty: ignore[invalid-return-type]
 
     def _C(
         self,
-        theta: float | jax.Array | np.ndarray[Any, Any],
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         return 1 / vmap(jax.grad(self._h))(theta)
 
     @abstractmethod
     def _h(
         self,
-        theta: float | jax.Array | np.ndarray[Any, Any],
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         raise NotImplementedError
 
     @abstractmethod
     def _kr(
         self,
-        theta: float | jax.Array | np.ndarray[Any, Any],
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         raise NotImplementedError
 
     def _K(
         self,
-        theta: float | jax.Array | np.ndarray[Any, Any],
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         return self._Ks * self._kr(theta)
 
 
@@ -147,29 +164,33 @@ class BrooksAndCorey(_RichardsModel):
         theta_range: Tuple ``(theta_r, theta_s)`` for effective saturation.
     """
 
-    n: float | Param
-    l: float | Param = 1
-    Ks: float | Param | None = None
-    k: float | None = None
-    g: float | Param = 9.81
-    rho: float | Param = 1e3
-    mu: float | Param = 1e-3
-    alpha: float | Param = 1
-    theta_range: tuple[float | Param, float | Param] = (0, 1)
+    n: float | jax.Array | Param  # ty: ignore[dataclass-field-order]
+    l: float | jax.Array | Param = 1
+    Ks: float | jax.Array | Param | None = None
+    k: float | jax.Array | None = None
+    g: float | jax.Array | Param = 9.81
+    rho: float | jax.Array | Param = 1e3
+    mu: float | jax.Array | Param = 1e-3
+    alpha: float | jax.Array | Param = 1
+    theta_range: tuple[float | jax.Array | Param, float | jax.Array | Param] = (0, 1)
 
     def _h(
         self,
-        theta: float | jax.Array | np.ndarray[Any, Any],
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         Se = self._Se(theta)
         return -1 / (self.alpha * Se ** (1 / self.n))
 
     def _kr(
         self,
-        theta: float | jax.Array | np.ndarray[Any, Any],
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         Se = self._Se(theta)
         return Se ** (2 / self.n + self.l + 2)
 
@@ -203,16 +224,16 @@ class VanGenuchten(_RichardsModel):
         ValueError: If neither ``n`` nor ``m`` is provided.
     """
 
-    n: float | Param | None = None
-    m: float | Param | None = None
-    l: float | Param = 0.5
-    Ks: float | Param | None = None
-    k: float | Param | None = None
-    g: float | Param = 9.81
-    rho: float | Param = 1e3
-    mu: float | Param = 1e-3
-    alpha: float | Param = 1
-    theta_range: tuple[float | Param, float | Param] = (0, 1)
+    n: float | jax.Array | Param | None = None
+    m: float | jax.Array | Param | None = None
+    l: float | jax.Array | Param = 0.5
+    Ks: float | jax.Array | Param | None = None
+    k: float | jax.Array | Param | None = None
+    g: float | jax.Array | Param = 9.81
+    rho: float | jax.Array | Param = 1e3
+    mu: float | jax.Array | Param = 1e-3
+    alpha: float | jax.Array | Param = 1
+    theta_range: tuple[float | jax.Array | Param, float | jax.Array | Param] = (0, 1)
 
     @property
     def _n(self) -> float | jax.Array | Param:
@@ -238,17 +259,21 @@ class VanGenuchten(_RichardsModel):
 
     def _h(
         self,
-        theta: float | jax.Array | np.ndarray[Any, Any],
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         Se = self._Se(theta)
         return -((1 / (Se ** (1 / self._m)) - 1) ** (1 / self._n)) / self.alpha
 
     def _kr(
         self,
-        theta: float | jax.Array | np.ndarray[Any, Any],
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         Se = self._Se(theta)
         return Se**self.l * (1 - (1 - Se ** (1 / self._m)) ** self._m) ** 2
 
@@ -281,33 +306,37 @@ class LETxs(_RichardsModel):
         theta_range: Tuple ``(theta_r, theta_s)`` for effective saturation.
     """
 
-    Lw: float | Param
-    Ew: float | Param
-    Tw: float | Param
-    Ls: float | Param
-    Es: float | Param
-    Ts: float | Param
-    Ks: float | Param | None = None
-    k: float | None = None
-    g: float | Param = 9.81
-    rho: float | Param = 1e3
-    mu: float | Param = 1e-3
-    alpha: float | Param = 1
-    theta_range: tuple[float | Param, float | Param] = (0, 1)
+    Lw: float | jax.Array | Param  # ty: ignore[dataclass-field-order]
+    Ew: float | jax.Array | Param  # ty: ignore[dataclass-field-order]
+    Tw: float | jax.Array | Param  # ty: ignore[dataclass-field-order]
+    Ls: float | jax.Array | Param  # ty: ignore[dataclass-field-order]
+    Es: float | jax.Array | Param  # ty: ignore[dataclass-field-order]
+    Ts: float | jax.Array | Param  # ty: ignore[dataclass-field-order]
+    Ks: float | jax.Array | Param | None = None
+    k: float | jax.Array | Param | None = None
+    g: float | jax.Array | Param = 9.81
+    rho: float | jax.Array | Param = 1e3
+    mu: float | jax.Array | Param = 1e-3
+    alpha: float | jax.Array | Param = 1
+    theta_range: tuple[float | jax.Array | Param, float | jax.Array | Param] = (0, 1)
 
     def _kr(
         self,
-        theta: float | jax.Array | np.ndarray[Any, Any],
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         Se = self._Se(theta)
-        return Se**self.Lw / (Se**self.Lw + self.Ew * (1 - Se) ** self.Tw)
+        return Se**self.Lw / (Se**self.Lw + self.Ew * (1 - Se) ** self.Tw)  # ty: ignore[invalid-return-type]
 
     def _h(
         self,
-        theta: float | jax.Array | np.ndarray[Any, Any],
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[Any, Any]:
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         Se = self._Se(theta)
         return (
             -((1 - Se) ** self.Ls / ((1 - Se) ** self.Ls + self.Es * Se**self.Ts))

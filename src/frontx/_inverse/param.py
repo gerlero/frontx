@@ -1,5 +1,5 @@
 from collections.abc import Callable, Sequence
-from typing import Any, TypeVar, overload
+from typing import TypeVar, overload
 
 import jax
 import jax.numpy as jnp
@@ -9,14 +9,14 @@ from scipy.optimize import differential_evolution
 
 
 class Param(pmx.Param[float]):
-    min: float | None
-    max: float | None
+    min: float | jax.Array | None
+    max: float | jax.Array | None
 
     def __init__(
         self,
         value: float | jax.Array | None = None,
-        min: float | None = None,
-        max: float | None = None,
+        min: float | jax.Array | None = None,
+        max: float | jax.Array | None = None,
     ) -> None:
         if min is not None and max is not None:
             if value is None:
@@ -68,7 +68,11 @@ _O = TypeVar("_O")
 
 
 def set_param_values(
-    pytree: _T, values: jax.Array | np.ndarray[Any, Any] | Sequence[float], /
+    pytree: _T,
+    values: jax.Array
+    | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+    | Sequence[float],
+    /,
 ) -> _T:
     i = 0
 
@@ -92,7 +96,7 @@ def set_param_values(
 
 def de_fit(
     candidate: Callable[[_T], _O],
-    cost: Callable[[_O], float],
+    cost: Callable[[_O], float | jax.Array],
     /,
     initial: _T,
     *,
