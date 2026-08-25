@@ -150,7 +150,9 @@ class Solution(AbstractSolution):
             | jax.Array
             | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]
         ],
-        float | jax.Array | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
+        float
+        | jax.Array
+        | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
     ]:
         """Return the diffusivity-like callable used in the physics term.
 

@@ -21,14 +21,17 @@ _Diffusivity = Callable[
     ],
     float | jax.Array | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
 ]
-_DiffusivityInput = _Diffusivity | Callable[
-    [
-        float
-        | jax.Array
-        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
-    ],
-    float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
-]
+_DiffusivityInput = (
+    _Diffusivity
+    | Callable[
+        [
+            float
+            | jax.Array
+            | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
+        ],
+        float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+    ]
+)
 
 
 class Solution(AbstractSolution):

@@ -19,7 +19,9 @@ def ode(
             | jax.Array
             | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]
         ],
-        float | jax.Array | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
+        float
+        | jax.Array
+        | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
     ],
 ) -> diffrax.ODETerm[jax.Array]:
     @diffrax.ODETerm[jax.Array]  # ty: ignore[invalid-argument-type]

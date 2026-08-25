@@ -107,7 +107,11 @@ class ScaledSolution(AbstractSolution):
         | jax.Array
         | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
         /,
-    ) -> float | jax.Array | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]:
+    ) -> (
+        float
+        | jax.Array
+        | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]
+    ):
         return self.original.D(theta) * self.D0
 
     @property
