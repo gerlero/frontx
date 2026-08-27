@@ -4,6 +4,7 @@ from abc import abstractmethod
 
 import equinox as eqx
 import jax
+import jax.numpy as jnp
 import numpy as np
 
 from . import Param
@@ -275,7 +276,7 @@ class VanGenuchten(_RichardsModel):
         /,
     ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         Se = self._Se(theta)
-        return Se**self.l * (1 - (1 - Se ** (1 / self._m)) ** self._m) ** 2
+        return Se**self.l * jnp.expm1(self._m * jnp.log1p(-(Se ** (1 / self._m)))) ** 2
 
 
 class LETxs(_RichardsModel):
