@@ -35,3 +35,20 @@ def test_van_genuchten_kr_near_residual_float32() -> None:
         rel=1e-6,
         abs=0.0,
     )
+
+
+def test_van_genuchten_diffusivity() -> None:
+    model = VanGenuchten(n=1.5, theta_range=(0.1, 0.9))
+
+    theta = jnp.linspace(0.1 + 1e-9, 0.9 - 1e-9, 100)
+
+    def K_over_C(theta):
+        return model._K(theta) / model._C(theta)
+
+    assert jax.vmap(model)(theta) == pytest.approx(jax.vmap(K_over_C)(theta))
+    assert jax.vmap(jax.grad(model))(theta) == pytest.approx(
+        jax.vmap(jax.grad(K_over_C))(theta)
+    )
+    assert jax.vmap(jax.grad(jax.grad(model)))(theta) == pytest.approx(
+        jax.vmap(jax.grad(jax.grad(K_over_C)))(theta)
+    )
