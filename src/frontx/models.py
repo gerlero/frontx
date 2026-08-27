@@ -278,6 +278,26 @@ class VanGenuchten(_RichardsModel):
         Se = self._Se(theta)
         return Se**self.l * jnp.expm1(self._m * jnp.log1p(-(Se ** (1 / self._m)))) ** 2
 
+    def __call__(
+        self,
+        theta: float
+        | jax.Array
+        | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
+        /,
+    ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
+        Se = self._Se(theta)
+        u = self._m * jnp.log1p(-(Se ** (1 / self._m)))
+
+        return (
+            (1 - self._m)
+            * self._Ks
+            / (self.alpha * self._m * (self.theta_range[1] - self.theta_range[0]))
+            * Se**self.l
+            * Se ** (-1 / self._m)
+            * jnp.expm1(u) ** 2
+            * jnp.exp(-u)
+        )
+
 
 class LETxs(_RichardsModel):
     """Richards-based LET model with separate wet/dry shapes.
