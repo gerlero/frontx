@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Literal
+from typing import Literal, override
 
 import equinox as eqx
 import jax
@@ -83,6 +83,7 @@ class ScaledSolution(AbstractSolution):
 
         return ScaledSolution(original, D0, _result=result)
 
+    @override
     @boltzmannmethod
     def __call__(
         self,
@@ -92,6 +93,7 @@ class ScaledSolution(AbstractSolution):
     ) -> jax.Array:
         return self.original(o / jnp.sqrt(self.D0))
 
+    @override
     @boltzmannmethod
     def d_do(
         self,
@@ -101,6 +103,7 @@ class ScaledSolution(AbstractSolution):
     ) -> jax.Array:
         return self.original.d_do(o / jnp.sqrt(self.D0)) / jnp.sqrt(self.D0)
 
+    @override
     def D(
         self,
         theta: float
@@ -114,6 +117,7 @@ class ScaledSolution(AbstractSolution):
     ):
         return self.original.D(theta) * self.D0
 
+    @override
     @property
     def oi(self) -> jax.Array:
         return self.original.oi * jnp.sqrt(self.D0)
