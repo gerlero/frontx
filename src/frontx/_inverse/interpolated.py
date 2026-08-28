@@ -1,3 +1,5 @@
+from typing import override
+
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -47,6 +49,7 @@ class InterpolatedSolution(AbstractSolution):
         self._Iodtheta = inverse.antiderivative()
         self._c = self._Iodtheta(i)
 
+    @override
     @boltzmannmethod
     def __call__(
         self,
@@ -56,6 +59,7 @@ class InterpolatedSolution(AbstractSolution):
     ) -> jax.Array:
         return self._sol(o)
 
+    @override
     def D(
         self,
         theta: float
@@ -68,6 +72,7 @@ class InterpolatedSolution(AbstractSolution):
 
         return jnp.squeeze(-(do_dtheta * Iodtheta) / 2)
 
+    @override
     def sorptivity(
         self,
         o: float

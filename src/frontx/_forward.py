@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import cast
+from typing import cast, override
 
 import diffrax
 import equinox as eqx
@@ -13,7 +13,7 @@ from ._util import vmap
 
 RESULTS = diffrax.RESULTS
 
-_Diffusivity = Callable[
+type _Diffusivity = Callable[
     [
         float
         | jax.Array
@@ -21,7 +21,7 @@ _Diffusivity = Callable[
     ],
     float | jax.Array | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
 ]
-_DiffusivityInput = (
+type _DiffusivityInput = (
     _Diffusivity
     | Callable[
         [
@@ -39,6 +39,7 @@ class Solution(AbstractSolution):
     result: RESULTS
     D: _Diffusivity
 
+    @override
     @boltzmannmethod
     def __call__(
         self,
@@ -48,6 +49,7 @@ class Solution(AbstractSolution):
     ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         return vmap(self._sol.evaluate)(jnp.clip(o, 0, self.oi))[..., 0]  # ty: ignore[not-subscriptable]
 
+    @override
     @boltzmannmethod
     def d_do(
         self,
@@ -57,21 +59,25 @@ class Solution(AbstractSolution):
     ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         return vmap(self._sol.evaluate)(jnp.clip(o, 0, self.oi))[..., 1]  # ty: ignore[not-subscriptable]
 
+    @override
     @property
     def oi(self) -> jax.Array:
         assert self._sol.ts is not None
         return self._sol.ts[-1]
 
+    @override
     @property
     def i(self) -> jax.Array:
         assert self._sol.ys is not None
         return self._sol.ys[-1, 0]
 
+    @override
     @property
     def b(self) -> jax.Array:
         assert self._sol.ys is not None
         return self._sol.ys[0, 0]
 
+    @override
     @property
     def d_dob(self) -> jax.Array:
         assert self._sol.ys is not None

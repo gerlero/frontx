@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from collections.abc import Callable
 from functools import wraps
-from typing import Protocol, TypeVar, overload
+from typing import Protocol, overload
 
 import diffrax
 import equinox as eqx
@@ -41,9 +41,6 @@ def ode(
     return term
 
 
-_Self = TypeVar("_Self")
-
-
 class _BoltzmannTransformed(Protocol):
     @overload
     def __call__(
@@ -65,10 +62,10 @@ class _BoltzmannTransformed(Protocol):
     ) -> jax.Array: ...
 
 
-def boltzmannmethod(
+def boltzmannmethod[Self](
     meth: Callable[
         [
-            _Self,
+            Self,
             float
             | jax.Array
             | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
@@ -79,7 +76,7 @@ def boltzmannmethod(
 ) -> _BoltzmannTransformed:
     @overload
     def boltzmann_wrapper(
-        self: _Self,
+        self: Self,
         r: float
         | jax.Array
         | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
@@ -92,7 +89,7 @@ def boltzmannmethod(
 
     @overload
     def boltzmann_wrapper(
-        self: _Self,
+        self: Self,
         o: float
         | jax.Array
         | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
@@ -102,7 +99,7 @@ def boltzmannmethod(
 
     @wraps(meth)
     def boltzmann_wrapper(
-        self: _Self,
+        self: Self,
         *args: float
         | jax.Array
         | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],

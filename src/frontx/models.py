@@ -1,6 +1,7 @@
 """Moisture diffusivity models."""
 
 from abc import abstractmethod
+from typing import override
 
 import equinox as eqx
 import jax
@@ -63,6 +64,7 @@ class LETd(_MoistureDiffusivityModel):
     Dwt: float | Param = 1
     theta_range: tuple[float | Param, float | Param] = (0, 1)
 
+    @override
     def __call__(
         self,
         theta: float
@@ -93,6 +95,7 @@ class _RichardsModel(_MoistureDiffusivityModel):
             raise ValueError(msg)
         return self.Ks
 
+    @override
     def __call__(
         self,
         theta: float
@@ -175,6 +178,7 @@ class BrooksAndCorey(_RichardsModel):
     alpha: float | jax.Array | Param = 1
     theta_range: tuple[float | jax.Array | Param, float | jax.Array | Param] = (0, 1)
 
+    @override
     def _h(
         self,
         theta: float
@@ -185,6 +189,7 @@ class BrooksAndCorey(_RichardsModel):
         Se = self._Se(theta)
         return -1 / (self.alpha * Se ** (1 / self.n))
 
+    @override
     def _kr(
         self,
         theta: float
@@ -258,6 +263,7 @@ class VanGenuchten(_RichardsModel):
 
         return 1 - 1 / self.n
 
+    @override
     def _h(
         self,
         theta: float
@@ -268,6 +274,7 @@ class VanGenuchten(_RichardsModel):
         Se = self._Se(theta)
         return -((1 / (Se ** (1 / self._m)) - 1) ** (1 / self._n)) / self.alpha
 
+    @override
     def _kr(
         self,
         theta: float
@@ -278,6 +285,7 @@ class VanGenuchten(_RichardsModel):
         Se = self._Se(theta)
         return Se**self.l * jnp.expm1(self._m * jnp.log1p(-(Se ** (1 / self._m)))) ** 2
 
+    @override
     def __call__(
         self,
         theta: float
@@ -341,6 +349,7 @@ class LETxs(_RichardsModel):
     alpha: float | jax.Array | Param = 1
     theta_range: tuple[float | jax.Array | Param, float | jax.Array | Param] = (0, 1)
 
+    @override
     def _kr(
         self,
         theta: float
@@ -351,6 +360,7 @@ class LETxs(_RichardsModel):
         Se = self._Se(theta)
         return Se**self.Lw / (Se**self.Lw + self.Ew * (1 - Se) ** self.Tw)  # ty: ignore[invalid-return-type]
 
+    @override
     def _h(
         self,
         theta: float

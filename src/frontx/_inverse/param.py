@@ -1,5 +1,5 @@
 from collections.abc import Callable, Sequence
-from typing import TypeVar, overload
+from typing import overload
 
 import jax
 import jax.numpy as jnp
@@ -63,26 +63,22 @@ def get_params(pytree: object, /) -> Sequence[Param]:
     return ret
 
 
-_T = TypeVar("_T")
-_O = TypeVar("_O")
-
-
-def set_param_values(
-    pytree: _T,
+def set_param_values[T](
+    pytree: T,
     values: jax.Array
     | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]
     | Sequence[float],
     /,
-) -> _T:
+) -> T:
     i = 0
 
     @overload
     def replace(obj: Param) -> Param: ...
 
     @overload
-    def replace(obj: _O) -> _O: ...
+    def replace[O](obj: O) -> O: ...
 
-    def replace(obj: Param | _O) -> Param | _O:
+    def replace[O](obj: Param | O) -> Param | O:
         nonlocal i
         if isinstance(obj, Param):
             obj = Param(values[i], min=obj.min, max=obj.max)
@@ -94,14 +90,14 @@ def set_param_values(
     )
 
 
-def de_fit(
-    candidate: Callable[[_T], _O],
-    cost: Callable[[_O], float | jax.Array],
+def de_fit[T, O](
+    candidate: Callable[[T], O],
+    cost: Callable[[O], float | jax.Array],
     /,
-    initial: _T,
+    initial: T,
     *,
     max_steps: int = 15,
-) -> _O:
+) -> O:
     params = get_params(initial)
     x0 = jnp.array([p.value for p in params])
     bounds = jnp.array([(p.min, p.max) for p in params])

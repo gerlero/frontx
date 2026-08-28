@@ -10,7 +10,7 @@ physics residual defined via a diffusivity-like callable ``D``.
 """
 
 from collections.abc import Callable
-from typing import cast
+from typing import cast, override
 
 import equinox as eqx
 import jax
@@ -141,6 +141,7 @@ class Solution(AbstractSolution):
         self.oi = oi
         super().__init__()  # ty: ignore[missing-argument]
 
+    @override
     @property
     def D(
         self,
@@ -175,6 +176,7 @@ class Solution(AbstractSolution):
             self._net.D,
         )
 
+    @override
     @boltzmannmethod
     def __call__(
         self,
