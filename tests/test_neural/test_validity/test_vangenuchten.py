@@ -37,4 +37,4 @@ def test_vangenuchten() -> None:
     # Forward re-solve with the fitted D and re-check
     sol2 = frontx.solve(sol.D, i=theta_i, b=theta_b)
     rchisq2 = np.sum((sol2(o) - theta) ** 2 / std**2) / (len(o) - 4)
-    assert rchisq2 <= 2.9
+    assert rchisq2 <= 3

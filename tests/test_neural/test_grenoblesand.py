@@ -30,7 +30,7 @@ def test_grenoble_sand() -> None:
 
     # Reference model and nearly saturated boundary forward solution
     D_ref = VanGenuchten(Ks=Ks, alpha=alpha, m=m, theta_range=(0.0, theta_s))
-    ref = frontx.solve(D_ref, i=0, b=theta_s - 1e-7)
+    ref = frontx.solve(D_ref, i=0, b=theta_s - 1e-7, itol=1e-6)
 
     # Trainable model: infer Ks and m from the synthetic reference
     D_train = VanGenuchten(
