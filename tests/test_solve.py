@@ -146,6 +146,29 @@ def test_fronts_papers(Ds: tuple[Any, Any, dict[str, Any]]) -> None:
     assert sol(o) == pytest.approx(sol_ref(o=o), abs=5e-2)
 
 
+def test_hydrus_result() -> None:
+    from frontx.examples.data.hydrus import r, t, theta, velocity
+
+    Ks = 25  # cm/h
+    alpha = 0.01433  # 1/cm
+    n = 1.506
+    theta_range = (0, 0.3308)
+
+    theta_i = 0.1003
+    theta_b = theta_range[1] - 1e-7
+
+    D = VanGenuchten(Ks=Ks, alpha=alpha, n=n, theta_range=theta_range)
+
+    sol = solve(D, i=theta_i, b=theta_b)
+    assert sol.result == RESULTS.successful
+
+    for t_, theta_ in zip(t, theta, strict=True):
+        assert sol(r, t_) == pytest.approx(theta_, abs=5e-2)
+
+    for t_, velocity_ in zip(t, velocity, strict=True):
+        assert sol.flux(r, t_) == pytest.approx(velocity_, abs=0.7)
+
+
 def test_unsolvable() -> None:
     """The solver must raise or flag failure on infeasible problems."""
     with pytest.raises(eqx.EquinoxRuntimeError):
