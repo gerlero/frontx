@@ -292,10 +292,10 @@ def fit(
     def train_step(
         trainable_net: _PINN,
         opt_state: optax.OptState,
-        step: jax.Array,
-        physics_loss: jax.Array,
-        residual_cutoff: jax.Array,
-    ) -> tuple[_PINN, optax.OptState, jax.Array, jax.Array, jax.Array]:
+        step: int | jax.Array,
+        physics_loss: float | jax.Array,
+        residual_cutoff: float | jax.Array,
+    ) -> tuple[_PINN, optax.OptState, int | jax.Array, jax.Array, jax.Array]:
         net = eqx.combine(trainable_net, static_net)
 
         assert oi is not None
