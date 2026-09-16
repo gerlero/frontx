@@ -22,7 +22,7 @@ class _MoistureDiffusivityModel(eqx.Module):
         | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
     ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
-        return (theta - self.theta_range[0]) / (
+        return (theta - self.theta_range[0]) / (  # ty: ignore[invalid-return-type]
             self.theta_range[1] - self.theta_range[0]
         )
 
@@ -73,7 +73,7 @@ class LETd(_MoistureDiffusivityModel):
         /,
     ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         Se = (theta - self.theta_range[0]) / (self.theta_range[1] - self.theta_range[0])
-        return self.Dwt * Se**self.L / (Se**self.L + self.E * (1 - Se) ** self.T)
+        return self.Dwt * Se**self.L / (Se**self.L + self.E * (1 - Se) ** self.T)  # ty: ignore[invalid-return-type]
 
 
 class _RichardsModel(_MoistureDiffusivityModel):
@@ -370,6 +370,6 @@ class LETxs(_RichardsModel):
     ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         Se = self._Se(theta)
         return (
-            -((1 - Se) ** self.Ls / ((1 - Se) ** self.Ls + self.Es * Se**self.Ts))
+            -((1 - Se) ** self.Ls / ((1 - Se) ** self.Ls + self.Es * Se**self.Ts))  # ty: ignore[invalid-return-type]
             / self.alpha
         )
