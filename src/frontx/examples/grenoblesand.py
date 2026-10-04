@@ -14,7 +14,6 @@ jax.config.update("jax_enable_x64", True)
 Ks = 15.37  # cm/h
 alpha_vg = 0.0432  # 1/cm
 m_vg = 0.5096
-Ks_bc = 4.27
 alpha_bc = 1 / 11.43  # 1/cm
 n_bc = 1.2876
 theta_s = 0.312
