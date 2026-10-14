@@ -45,7 +45,7 @@ Documentation = "https://frontx.readthedocs.io"
 
 [dependency-groups]
 examples = ["frontx[examples]"]
-lint = ["ruff>=0.16.5,<0.17"]
+lint = ["ruff>=0.16.5,<0.18"]
 typing = [
     {include-group = "examples"},
     "ty>=0.0.77,<0.1"
