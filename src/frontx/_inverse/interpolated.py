@@ -9,7 +9,7 @@ from frontx._boltzmann import AbstractSolution, boltzmannmethod
 
 
 class InterpolatedSolution(AbstractSolution):
-    oi: float | jax.Array
+    _oi: float | jax.Array
     _sol: PchipInterpolator
     _do_dtheta: PPoly
     _Iodtheta: PPoly
@@ -39,7 +39,7 @@ class InterpolatedSolution(AbstractSolution):
         else:
             i = theta[-1]
 
-        self.oi = o[-1]
+        self._oi = o[-1]
 
         theta, indices = jnp.unique(theta, return_index=True)
         o = o[indices]
@@ -80,4 +80,9 @@ class InterpolatedSolution(AbstractSolution):
         | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]] = 0.0,
     ) -> jax.Array:
         Ithetado = self._sol.antiderivative()
-        return (Ithetado(self.oi) - Ithetado(o)) - self.i * (self.oi - o)
+        return (Ithetado(self._oi) - Ithetado(o)) - self.i * (self._oi - o)
+
+    @override
+    @property
+    def oi(self) -> float | jax.Array:
+        return self._oi

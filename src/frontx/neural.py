@@ -114,7 +114,7 @@ class Solution(AbstractSolution):
         oi: Characteristic scale used to normalize inputs ``o`` (``x = o/oi``).
     """
 
-    oi: float | jax.Array
+    _oi: float | jax.Array
     _net: _PINN
     _i: float | jax.Array
     _b: float | jax.Array
@@ -138,8 +138,8 @@ class Solution(AbstractSolution):
         self._net = net
         self._i = i
         self._b = b
-        self.oi = oi
-        super().__init__()  # ty: ignore[missing-argument]
+        self._oi = oi
+        super().__init__()
 
     @override
     @property
@@ -195,9 +195,14 @@ class Solution(AbstractSolution):
         Returns:
             The predicted response with the same shape broadcasting as ``o``.
         """
-        x = jnp.clip(o / self.oi, 0, 1)
+        x = jnp.clip(o / self._oi, 0, 1)
 
         return self._i + (self._b - self._i) * self._net(x)
+
+    @override
+    @property
+    def oi(self) -> float | jax.Array:
+        return self._oi
 
 
 @eqx.filter_jit
