@@ -13,7 +13,9 @@ from ._util import vmap
 
 
 class _MoistureDiffusivityModel(eqx.Module):
-    theta_range: eqx.AbstractVar[tuple[float | Param, float | Param]]
+    theta_range: eqx.AbstractVar[
+        tuple[float | jax.Array | Param, float | jax.Array | Param]
+    ]
 
     def _Se(
         self,
@@ -62,7 +64,7 @@ class LETd(_MoistureDiffusivityModel):
     E: float | Param  # ty: ignore[dataclass-field-order]
     T: float | Param  # ty: ignore[dataclass-field-order]
     Dwt: float | Param = 1
-    theta_range: tuple[float | Param, float | Param] = (0, 1)
+    theta_range: tuple[float | jax.Array | Param, float | jax.Array | Param] = (0, 1)
 
     @override
     def __call__(
@@ -171,7 +173,7 @@ class BrooksAndCorey(_RichardsModel):
     n: float | jax.Array | Param  # ty: ignore[dataclass-field-order]
     l: float | jax.Array | Param = 1
     Ks: float | jax.Array | Param | None = None
-    k: float | jax.Array | None = None
+    k: float | jax.Array | Param | None = None
     g: float | jax.Array | Param = 9.81
     rho: float | jax.Array | Param = 1e3
     mu: float | jax.Array | Param = 1e-3

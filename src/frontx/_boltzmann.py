@@ -11,19 +11,17 @@ import numpy as np
 
 from ._util import vmap
 
-
-def ode(
-    D: Callable[
-        [
-            float
-            | jax.Array
-            | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]
-        ],
+type _Diffusivity = Callable[
+    [
         float
         | jax.Array
-        | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
+        | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]
     ],
-) -> diffrax.ODETerm[jax.Array]:
+    float | jax.Array | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
+]
+
+
+def ode(D: _Diffusivity) -> diffrax.ODETerm[jax.Array]:
     @diffrax.ODETerm[jax.Array]  # ty: ignore[invalid-argument-type]
     def term(
         o: jax.Array,
@@ -126,19 +124,15 @@ def boltzmannmethod[Self](
 
 
 class AbstractSolution(eqx.Module):
-    D: eqx.AbstractVar[
-        Callable[
-            [
-                float
-                | jax.Array
-                | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]
-            ],
-            float
-            | jax.Array
-            | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
-        ]
-    ]
-    oi: eqx.AbstractVar[float]
+    @property
+    @abstractmethod
+    def D(self) -> _Diffusivity:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def oi(self) -> float | jax.Array:
+        raise NotImplementedError
 
     @property
     def b(self) -> jax.Array:
@@ -191,7 +185,7 @@ class AbstractSolution(eqx.Module):
         | jax.Array
         | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     ) -> jax.Array:
-        return -r / (jnp.sqrt(t) * 2 * t) * self.d_do(r, t)
+        return self.d_do(r, t) * (-r / (jnp.sqrt(t) * 2 * t))
 
     def flux(
         self,

@@ -8,19 +8,11 @@ import jax.numpy as jnp
 import numpy as np
 import optimistix as optx
 
-from ._boltzmann import AbstractSolution, boltzmannmethod, ode
+from ._boltzmann import AbstractSolution, _Diffusivity, boltzmannmethod, ode
 from ._util import vmap
 
 RESULTS = diffrax.RESULTS
 
-type _Diffusivity = Callable[
-    [
-        float
-        | jax.Array
-        | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]]
-    ],
-    float | jax.Array | np.ndarray[tuple[int, ...], np.dtype[np.floating | np.integer]],
-]
 type _DiffusivityInput = (
     _Diffusivity
     | Callable[
@@ -37,7 +29,12 @@ type _DiffusivityInput = (
 class Solution(AbstractSolution):
     _sol: diffrax.Solution
     result: RESULTS
-    D: _Diffusivity
+    _D: _Diffusivity
+
+    @override
+    @property
+    def D(self) -> _Diffusivity:
+        return self._D
 
     @override
     @boltzmannmethod
@@ -142,5 +139,5 @@ def solve(
             RESULTS.successful,
             RESULTS.max_steps_reached,
         ),
-        D=cast(_Diffusivity, D),
-    )  # ty: ignore[missing-argument]
+        _D=cast(_Diffusivity, D),
+    )
