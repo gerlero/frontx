@@ -120,7 +120,7 @@ def boltzmannmethod[Self](
 
         return meth(self, o)
 
-    return boltzmann_wrapper  # ty: ignore[invalid-return-type]
+    return boltzmann_wrapper  # ty: ignore[invalid-explicit-return]
 
 
 class AbstractSolution(eqx.Module):
@@ -196,7 +196,7 @@ class AbstractSolution(eqx.Module):
         | jax.Array
         | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
     ) -> jax.Array:
-        return -self.D(self(r, t)) * self.d_dr(r, t)  # ty: ignore[invalid-return-type]
+        return -self.D(self(r, t)) * self.d_dr(r, t)  # ty: ignore[invalid-explicit-return]
 
     def sorptivity(
         self,
@@ -204,4 +204,4 @@ class AbstractSolution(eqx.Module):
         | jax.Array
         | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]] = 0.0,
     ) -> jax.Array:
-        return -2 * self.D(self(o)) * self.d_do(o)  # ty: ignore[invalid-return-type]
+        return -2 * self.D(self(o)) * self.d_do(o)  # ty: ignore[invalid-explicit-return]
