@@ -24,7 +24,7 @@ class _MoistureDiffusivityModel(eqx.Module):
         | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
     ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
-        return (theta - self.theta_range[0]) / (  # ty: ignore[invalid-return-type]
+        return (theta - self.theta_range[0]) / (  # ty: ignore[invalid-explicit-return]
             self.theta_range[1] - self.theta_range[0]
         )
 
@@ -60,9 +60,9 @@ class LETd(_MoistureDiffusivityModel):
         theta_range: Tuple ``(theta_r, theta_s)`` used to compute ``Se``.
     """
 
-    L: float | Param  # ty: ignore[dataclass-field-order]
-    E: float | Param  # ty: ignore[dataclass-field-order]
-    T: float | Param  # ty: ignore[dataclass-field-order]
+    L: float | Param  # ty: ignore[invalid-dataclass-field-order]
+    E: float | Param  # ty: ignore[invalid-dataclass-field-order]
+    T: float | Param  # ty: ignore[invalid-dataclass-field-order]
     Dwt: float | Param = 1
     theta_range: tuple[float | jax.Array | Param, float | jax.Array | Param] = (0, 1)
 
@@ -75,7 +75,7 @@ class LETd(_MoistureDiffusivityModel):
         /,
     ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         Se = (theta - self.theta_range[0]) / (self.theta_range[1] - self.theta_range[0])
-        return self.Dwt * Se**self.L / (Se**self.L + self.E * (1 - Se) ** self.T)  # ty: ignore[invalid-return-type]
+        return self.Dwt * Se**self.L / (Se**self.L + self.E * (1 - Se) ** self.T)  # ty: ignore[invalid-explicit-return]
 
 
 class _RichardsModel(_MoistureDiffusivityModel):
@@ -105,7 +105,7 @@ class _RichardsModel(_MoistureDiffusivityModel):
         | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]],
         /,
     ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
-        return self._K(theta) / self._C(theta)  # ty: ignore[invalid-return-type]
+        return self._K(theta) / self._C(theta)  # ty: ignore[invalid-explicit-return]
 
     def _C(
         self,
@@ -170,7 +170,7 @@ class BrooksAndCorey(_RichardsModel):
         theta_range: Tuple ``(theta_r, theta_s)`` for effective saturation.
     """
 
-    n: float | jax.Array | Param  # ty: ignore[dataclass-field-order]
+    n: float | jax.Array | Param  # ty: ignore[invalid-dataclass-field-order]
     l: float | jax.Array | Param = 1
     Ks: float | jax.Array | Param | None = None
     k: float | jax.Array | Param | None = None
@@ -337,12 +337,12 @@ class LETxs(_RichardsModel):
         theta_range: Tuple ``(theta_r, theta_s)`` for effective saturation.
     """
 
-    Lw: float | jax.Array | Param  # ty: ignore[dataclass-field-order]
-    Ew: float | jax.Array | Param  # ty: ignore[dataclass-field-order]
-    Tw: float | jax.Array | Param  # ty: ignore[dataclass-field-order]
-    Ls: float | jax.Array | Param  # ty: ignore[dataclass-field-order]
-    Es: float | jax.Array | Param  # ty: ignore[dataclass-field-order]
-    Ts: float | jax.Array | Param  # ty: ignore[dataclass-field-order]
+    Lw: float | jax.Array | Param  # ty: ignore[invalid-dataclass-field-order]
+    Ew: float | jax.Array | Param  # ty: ignore[invalid-dataclass-field-order]
+    Tw: float | jax.Array | Param  # ty: ignore[invalid-dataclass-field-order]
+    Ls: float | jax.Array | Param  # ty: ignore[invalid-dataclass-field-order]
+    Es: float | jax.Array | Param  # ty: ignore[invalid-dataclass-field-order]
+    Ts: float | jax.Array | Param  # ty: ignore[invalid-dataclass-field-order]
     Ks: float | jax.Array | Param | None = None
     k: float | jax.Array | Param | None = None
     g: float | jax.Array | Param = 9.81
@@ -360,7 +360,7 @@ class LETxs(_RichardsModel):
         /,
     ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         Se = self._Se(theta)
-        return Se**self.Lw / (Se**self.Lw + self.Ew * (1 - Se) ** self.Tw)  # ty: ignore[invalid-return-type]
+        return Se**self.Lw / (Se**self.Lw + self.Ew * (1 - Se) ** self.Tw)  # ty: ignore[invalid-explicit-return]
 
     @override
     def _h(
@@ -372,6 +372,6 @@ class LETxs(_RichardsModel):
     ) -> float | jax.Array | np.ndarray[tuple[int], np.dtype[np.floating | np.integer]]:
         Se = self._Se(theta)
         return (
-            -((1 - Se) ** self.Ls / ((1 - Se) ** self.Ls + self.Es * Se**self.Ts))  # ty: ignore[invalid-return-type]
+            -((1 - Se) ** self.Ls / ((1 - Se) ** self.Ls + self.Es * Se**self.Ts))  # ty: ignore[invalid-explicit-return]
             / self.alpha
         )

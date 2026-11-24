@@ -54,7 +54,7 @@ def run() -> None:
         b=theta_s - 1e-7,
     )
 
-    print(f"Ks={sol.D.Ks.value}, m={sol.D.m.value}")  # ty: ignore[unresolved-attribute]
+    print(f"Ks={sol.D.Ks.value}, m={sol.D.m.value}")  # ty: ignore[missing-attribute]
 
     # Display
     o_display = np.linspace(0, ref.oi * 1.5, 500)

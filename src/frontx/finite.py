@@ -77,7 +77,7 @@ class Solution(eqx.Module):
     @property
     def t1(self) -> float | jax.Array:
         """Final integration time."""
-        return self._sol.t1  # ty: ignore[invalid-return-type]
+        return self._sol.t1  # ty: ignore[invalid-explicit-return]
 
     @property
     def result(self) -> RESULTS:
